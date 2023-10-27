@@ -1,6 +1,6 @@
 <!-- Developed by Taipei Urban Intelligence Center 2023 -->
 
-<script setup>
+<script setup> //组合式 API (Composition API) 的模式
 import { ref } from 'vue';
 import { useDialogStore } from '../../store/dialogStore';
 import { useAuthStore } from '../../store/authStore';
@@ -15,19 +15,19 @@ const authStore = useAuthStore();
 const dontShowAgain = ref(false);
 
 function handleSubmit() {
-	if (dontShowAgain.value) {
+	if (dontShowAgain.value) { //如果dontShowAgain==true，則在本地儲存"initialWarning:shown"
 		localStorage.setItem('initialWarning', 'shown');
 	}
 	handleClose();
 }
 function handleClose() {
 	dontShowAgain.value = false;
-	dialogStore.hideAllDialogs();
+	dialogStore.hideAllDialogs(); 
 }
 </script>
 
 <template>
-	<DialogContainer dialog="initialWarning" @on-close="handleClose">
+	<DialogContainer dialog="initialWarning" @on-close="handleClose"> <!--Close時觸發handleClose-->
 		<div class="initialwarning">
 			<h2 v-if="authStore.isMobileDevice">臺北城市儀表板行動版注意事項</h2>
 			<h2 v-else>臺北城市儀表板開源版注意事項</h2>
@@ -50,10 +50,10 @@ function handleClose() {
 			</div>
 			<div class="initialwarning-dontshow">
 				<input type="checkbox" id="dontshow" :value="true" v-model="dontShowAgain" class="custom-check-input" />
-				<CustomCheckBox for="dontshow">下次不再顯示此視窗</CustomCheckBox>
+				<CustomCheckBox for="dontshow">下次不再顯示此視窗</CustomCheckBox> <!--用v-model監聽dontShowAgain並按下時設"true"-->
 			</div>
 			<div class="initialwarning-control">
-				<button class="initialwarning-control-confirm" @click="handleSubmit">確定了解</button>
+				<button class="initialwarning-control-confirm" @click="handleSubmit">確定了解</button> <!--觸發handleSubmit-->
 			</div>
 		</div>
 	</DialogContainer>

@@ -9,10 +9,12 @@ Testing: Jack Huang (Data Scientist), Ian Huang (Data Analysis Intern)
 <!-- Department of Information Technology, Taipei City Government -->
 
 <script setup>
+//以下是JS檔 (全域變數、Func處理用)
 import { onBeforeMount, onMounted } from 'vue';
 import { useAuthStore } from './store/authStore';
 import { useDialogStore } from './store/dialogStore';
 
+//以下是Vue檔 (VUE邏輯處裡)
 import NavBar from './components/NavBar.vue';
 import SideBar from './components/SideBar.vue';
 import SettingsBar from './components/SettingsBar.vue';
@@ -35,9 +37,9 @@ onBeforeMount(() => {
 	});
 });
 onMounted(() => {
-	const showInitialWarning = localStorage.getItem('initialWarning');
+	const showInitialWarning = localStorage.getItem('initialWarning'); //從瀏覽器本地儲存中找尋initialWarning變數
 	if (!showInitialWarning) {
-		dialogStore.showDialog('initialWarning');
+		dialogStore.showDialog('initialWarning'); //沒有的話，就針對dialogStore這個store的showDialog這個action設定initialWarning要show
 	}
 });
 </script>
@@ -50,10 +52,10 @@ onMounted(() => {
 			<SideBar />
 			<div class="app-content-main">
 				<SettingsBar />
-				<RouterView></RouterView>
+				<RouterView></RouterView> <!--正中間畫面顯示方式邏輯-->
 			</div>
 		</div>
-		<InitialWarning />
+		<InitialWarning /> <!--剛啟動時的跳出畫面-->
 	</div>
 </template>
 
