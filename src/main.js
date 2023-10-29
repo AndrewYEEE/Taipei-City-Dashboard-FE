@@ -17,7 +17,7 @@ import App from "./App.vue";
 
 // Import Core Packages: Vue-Router, Pinia, Apexcharts
 import router from "./router";
-import { createPinia } from "pinia";
+import { createPinia } from "pinia"; //Pinia 是 Vue3 推出後，官方推薦使用的新狀態管理工具， 也是默認配置
 import VueApexCharts from "vue3-apexcharts";
 
 // Import Global Components
@@ -35,7 +35,7 @@ import MapLegend from "./components/charts/MapLegend.vue";
 import MetroChart from "./components/charts/MetroChart.vue";
 import HeatmapChart from "./components/charts/HeatmapChart.vue";
 
-const app = createApp(App);
+const app = createApp(App); //建立VUE APP (同時也是最大父Component，下面app.component都是引入子component)
 
 // Add Core Packages: Vue-Router, Pinia, Apexcharts
 app.use(router);
@@ -57,4 +57,4 @@ app.component("MapLegend", MapLegend);
 app.component("MetroChart", MetroChart);
 app.component("HeatmapChart", HeatmapChart);
 
-app.mount("#app");
+app.mount("#app"); //掛載應用

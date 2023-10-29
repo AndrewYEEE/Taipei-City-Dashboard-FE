@@ -8,7 +8,7 @@ Testing: Jack Huang (Data Scientist), Ian Huang (Data Analysis Intern)
 -->
 <!-- Department of Information Technology, Taipei City Government -->
 
-<script setup>
+<script setup> //组合式 API (Composition API) 的模式
 //以下是JS檔 (全域變數、Func處理用)
 import { onBeforeMount, onMounted } from 'vue';
 import { useAuthStore } from './store/authStore';
@@ -36,7 +36,7 @@ onBeforeMount(() => {
 		document.documentElement.style.setProperty('--vh', `${vh}px`);
 	});
 });
-onMounted(() => {
+onMounted(() => { //VUE建立後(已經與DOM綁定，可操作this.$el)
 	const showInitialWarning = localStorage.getItem('initialWarning'); //從瀏覽器本地儲存中找尋initialWarning變數
 	if (!showInitialWarning) {
 		dialogStore.showDialog('initialWarning'); //沒有的話，就針對dialogStore這個store的showDialog這個action設定initialWarning要show

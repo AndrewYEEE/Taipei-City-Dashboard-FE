@@ -27,7 +27,7 @@ function handleClose() {
 </script>
 
 <template>
-	<DialogContainer dialog="initialWarning" @on-close="handleClose"> <!--Close時觸發handleClose-->
+	<DialogContainer dialog="initialWarning" @on-close="handleClose"> <!--1.dialog是 Static Props，因此後面值是單純以字串形式帶入不是變數 2.用v-on監控on-close觸發handleClose，但on-close好像是props?-->
 		<div class="initialwarning">
 			<h2 v-if="authStore.isMobileDevice">臺北城市儀表板行動版注意事項</h2>
 			<h2 v-else>臺北城市儀表板開源版注意事項</h2>
@@ -49,11 +49,11 @@ function handleClose() {
 					regularly updated.</p>
 			</div>
 			<div class="initialwarning-dontshow">
-				<input type="checkbox" id="dontshow" :value="true" v-model="dontShowAgain" class="custom-check-input" />
+				<input type="checkbox" id="dontshow" :value="true" v-model="dontShowAgain" class="custom-check-input" /> <!--type、id都是Static Props，value是Dynamic Props，因此value傳入的是boolean true而不是字串true-->
 				<CustomCheckBox for="dontshow">下次不再顯示此視窗</CustomCheckBox> <!--用v-model監聽dontShowAgain並按下時設"true"-->
 			</div>
 			<div class="initialwarning-control">
-				<button class="initialwarning-control-confirm" @click="handleSubmit">確定了解</button> <!--觸發handleSubmit-->
+				<button class="initialwarning-control-confirm" @click="handleSubmit">確定了解</button> <!--用v-on監控click觸發handleSubmit-->
 			</div>
 		</div>
 	</DialogContainer>
