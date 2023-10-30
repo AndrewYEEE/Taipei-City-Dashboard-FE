@@ -8,17 +8,17 @@ import { useDialogStore } from '../../store/dialogStore';
 
 const dialogStore = useDialogStore();
 
-defineProps({ dialog: String });
-defineEmits(['onClose']);
+defineProps({ dialog: String }); //獲取dialog prop
+defineEmits(['onClose']); //指定自訂義事件on-Close
 </script>
 
 <template>
 	<Teleport to="body"> <!--將一個元件內部的模板「傳送」到DOM 結構外層，這類場景最常見的例子就是全螢幕的模態框。-->
-		<Transition name="dialog"> <!--元素或元件進入和離開DOM 時套用動畫，name用於識別所屬的css-->
+		<Transition name="dialog"> <!--元素或元件進入和離開DOM 時套用動畫，name用於識別所屬的css，看最下面-->
 			<div class="dialogcontainer" v-if="dialogStore.dialogs[dialog]">
 				<div class="dialogcontainer-background" @click="$emit('onClose')"></div> <!--用v-on監控背景點擊事件，透過$emit觸發自訂事件onClose-->
 				<div class="dialogcontainer-dialog">
-					<slot></slot>
+					<slot></slot> <!--呼叫此元件的父元件，中間的內容會插入在這-->
 				</div>
 			</div>
 		</Transition>

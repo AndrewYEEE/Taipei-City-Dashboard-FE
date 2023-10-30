@@ -15,9 +15,9 @@ const statusToIcon = {
 </script>
 
 <template>
-	<Teleport to="body">
-		<Transition name="notification">
-			<div class="notificationcontainer" v-if="dialogStore.dialogs.notificationBar">
+	<Teleport to="body"> <!--將一個元件內部的模板「傳送」到DOM 結構外層，這類場景最常見的例子就是全螢幕的模態框。-->
+		<Transition name="notification"> <!--元素或元件進入和離開DOM 時套用動畫，name用於識別所屬的css，看最下面-->
+			<div class="notificationcontainer" v-if="dialogStore.dialogs.notificationBar"> <!--如果notificationBar是true，則渲染以下內容-->
 				<div class="notificationcontainer-notification">
 					<span
 						:class="{ success: dialogStore.notification.status === 'success', fail: dialogStore.notification.status === 'fail', info: dialogStore.notification.status === 'info' }">{{

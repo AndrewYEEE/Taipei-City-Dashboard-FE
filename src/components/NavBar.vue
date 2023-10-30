@@ -12,14 +12,14 @@ import { useFullscreen } from '@vueuse/core';
 
 import UserSettings from './dialogs/UserSettings.vue';
 
-const route = useRoute();
+const route = useRoute(); //取得所有route 傳入的資料（在 route.params 中，例如 route.params.id ）
 const authStore = useAuthStore();
 const dialogStore = useDialogStore();
-const { isFullscreen, toggle } = useFullscreen();
+const { isFullscreen, toggle } = useFullscreen(); //VUE內建的功能，用於全螢幕展示
 
-const linkQuery = computed(() => {
-	const { query } = route;
-	return `?index=${query.index}`;
+const linkQuery = computed(() => { //Computed()，當URL上面 /page?index=xxxx 變更的時候更新
+	const { query } = route; //獲取URL的Params
+	return `?index=${query.index}`;  //從Params中取出"index"的值
 });
 </script>
 
@@ -35,18 +35,18 @@ const linkQuery = computed(() => {
 			</div>
 		</div>
 		<div class="navbar-tabs hide-if-mobile">
-			<router-link :to="`/dashboard${linkQuery}`">儀表板總覽</router-link>
+			<router-link :to="`/dashboard${linkQuery}`">儀表板總覽</router-link> 
 			<router-link :to="`/mapview${linkQuery}`">地圖交叉比對</router-link>
 		</div>
 		<div class="navbar-user">
 			<a href="https://tuic.gov.taipei/documentation/front-end" target="_blank"
-				rel="noreferrer"><button><span>help</span></button></a>
+				rel="noreferrer"><button><span>help</span></button></a> <!--help按鈕-->
 			<button class="hide-if-mobile" @click="toggle"><span>{{ isFullscreen ? 'fullscreen_exit' : 'fullscreen'
-			}}</span></button>
-			<div class="navbar-user-user hide-if-mobile">
+			}}</span></button>  <!--全螢幕按鈕-->
+			<div class="navbar-user-user hide-if-mobile"> <!--向下滑動清單-->
 				<button>{{ authStore.user.name }}</button>
 				<ul>
-					<li><button @click="dialogStore.showDialog('userSettings')">用戶設定</button></li>
+					<li><button @click="dialogStore.showDialog('userSettings')">用戶設定</button></li><!--設定"userSettings"到dialogStore()，而下方user-settings的介面中呼叫的DialogContainer會偵測到變動而顯示-->
 					<li><button @click="authStore.handleLogout">登出</button></li>
 				</ul>
 				<teleport to="body">

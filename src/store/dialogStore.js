@@ -25,7 +25,7 @@ export const useDialogStore = defineStore("dialog", {
 			userSettings: false,
 		},
 		// Stores the content for notifications
-		notification: {
+		notification: {  //用於在NotificationBar中顯示用
 			status: "",
 			message: "",
 		},
@@ -40,7 +40,7 @@ export const useDialogStore = defineStore("dialog", {
 	getters: {},
 	actions: {
 		// Show the dialog passed into the function
-		showDialog(dialog) {
+		showDialog(dialog) { //設定哪個介面要=true，DialogContainer元件會知道要將=true的顯示
 			this.dialogs[dialog] = true;
 		},
 		// Will hide all dialogs currently active

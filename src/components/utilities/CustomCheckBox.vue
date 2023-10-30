@@ -15,7 +15,7 @@ const props = defineProps({ for: String });
 			</path>
 			<polyline points="1 9 7 14 15 4"></polyline>
 		</svg>
-		<slot></slot>
+		<slot></slot> <!--呼叫此元件的父元件，中間的內容會插入在這-->
 	</label>
 </template>
 

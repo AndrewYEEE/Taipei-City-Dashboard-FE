@@ -14,17 +14,17 @@ const dialogStore = useDialogStore();
 const mapStore = useMapStore();
 
 // The expanded state is also stored in localstorage to retain the setting after refresh
-const isExpanded = ref(true);
+const isExpanded = ref(true); //用於縮放左側列表，預設true(展開)
 
-function toggleExpand() {
+function toggleExpand() { //變更isExpanded Ref刷新頁面，於localStorage儲存目前是縮起來還是展開，如果是縮起來，觸發mapStore.resizeMap()
 	isExpanded.value = isExpanded.value ? false : true;
-	localStorage.setItem('isExpanded', isExpanded.value);
+	localStorage.setItem('isExpanded', isExpanded.value); 
 	if (!isExpanded.value) {
 		mapStore.resizeMap();
 	}
 }
 
-onMounted(() => {
+onMounted(() => { //此頁面建立的時候，從localStorage(瀏覽器本地儲存)中取出isExpanded變數，如果沒有預設false
 	const storedExpandedState = localStorage.getItem('isExpanded');
 	if (storedExpandedState === "false") {
 		isExpanded.value = false;
@@ -35,23 +35,35 @@ onMounted(() => {
 </script>
 
 <template>
-	<div :class="{ sidebar: true, 'sidebar-collapse': !isExpanded, 'hide-if-mobile': true }">
-		<div class="sidebar-sub-add">
-			<h2>{{ isExpanded ? `儀表板列表` : `列表` }}</h2>
+	<div :class="{ sidebar: true, 'sidebar-collapse': !isExpanded, 'hide-if-mobile': true }"> <!--用v-bind大量設定class-->
+		<!--針對"儀表板列表"主題顯示清單，利用v-for依據contentStore內容顯示，內容來自all_dashboards.json-->
+		<!--排除map-layers、favorites項目，剩下的渲染tab-->
+		<!--v-bind有icon、title、index、key、expanded-->
+		<div class="sidebar-sub-add"> <!--標題-->
+			<h2>{{ isExpanded ? `儀表板列表` : `列表` }}</h2> <!--縮放左側列表時要顯示的文字-->
 			<button v-if="isExpanded"
-				@click="dialogStore.showDialog('addDashboard')"><span>add_circle_outline</span>新增</button>
-			<AddDashboard />
+				@click="dialogStore.showDialog('addDashboard')"><span>add_circle_outline</span>新增</button> <!--v-on觸發click讓dialogStore("addDashboard")==true-->
+			<AddDashboard /> <!--裡面的DialogContainer會依據上面的dialogStore("addDashboard")==true決定是否顯示-->
 		</div>
 		<SideBarTab
 			v-for="item in contentStore.dashboards.filter((item) => item.index !== 'map-layers' && item.index !== 'favorites')"
 			:icon="item.icon" :title="item.name" :index="item.index" :key="item.index" :expanded="isExpanded" />
-		<h2>{{ isExpanded ? `基本地圖圖層` : `圖層` }}</h2>
+		
+		<!--渲染index = map-layers ， 以下設計都是只假設只有一項-->
+		<!--v-bind有icon、title、index、key、expanded，其中icon、title、index、expanded是props-->
+		<h2>{{ isExpanded ? `基本地圖圖層` : `圖層` }}</h2> <!--標題--> <!--縮放左側列表時要顯示的文字-->
 		<SideBarTab icon="public" title="圖資資訊" :expanded="isExpanded" index="map-layers" />
+		
+		<!--渲染index = favorites ， 以下設計都是只假設只有一項-->
+		<!--v-bind有icon、title、index、key、expanded，其中icon、title、index、expanded是props-->
+		<h2>{{ isExpanded ? `我的最愛` : `最愛` }}</h2> <!--標題--> <!--縮放左側列表時要顯示的文字-->
+		<SideBarTab icon="favorite" title="收藏組件" :expanded="isExpanded" index="favorites" />
+
+		<!--最底層的縮放按鈕，v-on監聽click事件觸發toggleExpand()-->
 		<button class="sidebar-collapse-button" @click="toggleExpand"><span>{{ isExpanded ? "keyboard_double_arrow_left" :
 			"keyboard_double_arrow_right"
-		}}</span></button>
-		<h2>{{ isExpanded ? `我的最愛` : `最愛` }}</h2>
-		<SideBarTab icon="favorite" title="收藏組件" :expanded="isExpanded" index="favorites" />
+		}}</span></button> 
+		
 	</div>
 </template>
 

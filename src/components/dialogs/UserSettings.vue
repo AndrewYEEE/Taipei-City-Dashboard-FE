@@ -17,7 +17,7 @@ function handleClose() {
 </script>
 
 <template>
-	<DialogContainer @onClose="handleClose" :dialog="`userSettings`">
+	<DialogContainer @onClose="handleClose" :dialog="`userSettings`"> <!--仍然使用DialogContainer模板，將"userSettings"丟入dialog props (這裡用@onClose可以過嗎?)-->
 		<h2>用戶設定</h2>
 		<table class="usersettings">
 			<tr>

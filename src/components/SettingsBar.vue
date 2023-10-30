@@ -29,7 +29,7 @@ watch(route, (newRoute) => {
 	}
 });
 
-function handleToggle() {
+function handleToggle() { //切換頁面，目前直接寫死為mapview或dashboard
 	if (isDashboard.value) {
 		router.replace({ name: 'mapview', query: { index: route.query.index } });
 	} else {
@@ -44,22 +44,29 @@ function handleToggle() {
 			<span>{{ contentStore.currentDashboard.icon }}</span>
 			<h2>{{ contentStore.currentDashboard.name }}
 			</h2>
+			<!--判斷如果是mobile，則顯示此按鈕，並且點擊時觸發 dialogStore("mobileNavigation")=true，顯示MobileNavigation -->
 			<button @click="dialogStore.showDialog('mobileNavigation')" class="show-if-mobile">
 				<span class="settingsbar-title-navigation">arrow_drop_down_circle</span>
 			</button>
 			<MobileNavigation />
+
+			<!--判斷如果不是mobile，也不是map-layers、favorites，則顯示以下功能-->
 			<div class="settingsbar-settings hide-if-mobile"
 				v-if="contentStore.currentDashboard.index !== 'map-layers' && contentStore.currentDashboard.index !== 'favorites'">
+				<!--以下組件都由dialogStore控制-->
 				<button @click="dialogStore.showDialog('addComponent')"><span>add_chart</span>
 					<p>新增組件</p>
 				</button>
 				<AddComponent />
+
+				<!--以下組件都由dialogStore控制-->
 				<button @click="dialogStore.showDialog('dashboardSettings')"><span>settings</span>
 					<p>設定</p>
 				</button>
 				<DashboardSettings />
 			</div>
 		</div>
+		<!--判斷如果是mobile，則顯示右上角按鈕，切換router頁面-->
 		<div class="settingsbar-navigation show-if-mobile">
 			<p>圖表</p>
 			<div>

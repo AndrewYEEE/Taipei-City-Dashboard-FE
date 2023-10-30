@@ -13,10 +13,12 @@ const { BASE_URL } = import.meta.env;
 
 export const useContentStore = defineStore("content", {
 	state: () => ({
-		// Stores all dashboards data. Reference the structure in /public/dashboards/all_dashboards.json
+		// Stores all dashboards data. Reference the structure in /public/dashboards/all_dashboards.json //畫面左側"儀表板列表"清單，依據"index"的值決定要不要顯示
 		dashboards: [],
-		// Stores all components data. Reference the structure in /public/dashboards/all_components.json
+		// Stores all components data. Reference the structure in /public/dashboards/all_components.json //
 		components: {},
+		// Stores all contributors data. Reference the structure in /public/dashboards/all_contributors.json //
+		contributors: {},
 		// Picks out the components that are map layers and stores them here
 		mapLayers: [],
 		// Picks out the components that are favorites and stores them here
@@ -29,8 +31,6 @@ export const useContentStore = defineStore("content", {
 			name: null,
 			content: [],
 		},
-		// Stores all contributors data. Reference the structure in /public/dashboards/all_contributors.json
-		contributors: {},
 		// Stores whether dashboards are loading
 		loading: false,
 		// Stores whether an error occurred
@@ -171,7 +171,7 @@ export const useContentStore = defineStore("content", {
 			});
 		},
 		// 7. Call an API to get contributor data (result consists of id, name, link)
-		setContributors() {
+		setContributors() { //原先設計從某個API取得json資料，當前是從自己的資料夾獲取
 			axios
 				.get(`${BASE_URL}/dashboards/all_contributors.json`)
 				.then((rs) => {
@@ -183,8 +183,8 @@ export const useContentStore = defineStore("content", {
 		/* Dummy Functions to demonstrate the logic of some functions that require a backend */
 		// Connect a backend to actually implement the following functions or remove altogether
 
-		// Call this function to create a new dashboard. Pass in the new dashboard name and icon.
-		createNewDashboard(name, index, icon) {
+		// Call this function to create a new dashboard. Pass in the new dashboard name and icon. 
+		createNewDashboard(name, index, icon) { //讓你看起來像是儲存到後端資料庫，實際上就是加入到List中，並透過修改dialogStore觸發Notification介面
 			const dialogStore = useDialogStore();
 
 			this.dashboards.push({
@@ -206,7 +206,7 @@ export const useContentStore = defineStore("content", {
 			);
 		},
 		// Call this function to change the dashboard name. Pass in the new dashboard name.
-		changeCurrentDashboardName(name) {
+		changeCurrentDashboardName(name) { //修改dashboard顯示名稱
 			const dialogStore = useDialogStore();
 
 			this.currentDashboard.name = name;

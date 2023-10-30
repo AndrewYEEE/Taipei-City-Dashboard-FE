@@ -27,7 +27,7 @@ function handleClose() {
 </script>
 
 <template>
-	<DialogContainer dialog="initialWarning" @on-close="handleClose"> <!--1.dialog是 Static Props，因此後面值是單純以字串形式帶入不是變數 2.用v-on監控on-close觸發handleClose，但on-close好像是props?-->
+	<DialogContainer dialog="initialWarning" @on-close="handleClose"> <!--1.dialog是 Static Props，因此後面值是單純以字串形式帶入不是變數 2.用emit監控on-close觸發handleClose-->
 		<div class="initialwarning">
 			<h2 v-if="authStore.isMobileDevice">臺北城市儀表板行動版注意事項</h2>
 			<h2 v-else>臺北城市儀表板開源版注意事項</h2>

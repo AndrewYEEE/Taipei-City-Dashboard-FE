@@ -11,27 +11,31 @@ import { validateStrInput, validateEngInput } from '../../assets/utilityFunction
 const dialogStore = useDialogStore();
 const contentStore = useContentStore();
 
-// Stores the inputted dashboard name
+// Stores the inputted dashboard name (儲存使用者輸入 Dashboard Name，應該為了v-model)
 const name = ref('');
-// Stores the inputted index
+// Stores the inputted index (儲存使用者輸入 index名稱 (要唯一值)，應該為了v-model)
 const index = ref('');
-// Stores the inputted icon
+// Stores the inputted icon (儲存使用者輸入 icon的 別名，應該為了v-model)
 const icon = ref('');
+
+//icon有以下這些
 const icons = ['shopping_cart', 'info', 'language', 'event', 'paid', 'account_balance', 'work', 'gavel', 'build_circle', 'circle_notifications', 'accessible',
 	'health_and_safety', 'science', 'coronavirus', 'luggage', 'flash_on', 'call', 'place', 'park', 'directions_car', 'lunch_dining', 'traffic', 'attractions',
 	'star', 'help', 'warning', 'lightbulb', 'notifications_active', 'fingerprint', 'pets', 'rocket_launch', 'sensors', 'commute', 'theaters', 'balance',
 	'sports_handball', 'flood', 'hotel', 'temple_buddhist', 'grass'];
+
+
 const errorMessage = ref({
 	name: null,
 	index: null,
 });
 
-function handleSubmit() {
+function handleSubmit() { //做輸入認證與重複檢查，如果有錯設定errorMessage Ref，否則加入contentStore.dashboards並透過修改dialogStore觸發Notification介面
 	errorMessage.value.name = validateStrInput(name.value) === true ? null : validateStrInput(name.value);
 	errorMessage.value.index = validateEngInput(index.value) === true ? null : validateEngInput(index.value);
 	if (errorMessage.value.name || errorMessage.value.index) return;
 
-	const dashboardIndexes = contentStore.dashboards.map(el => el.index);
+	const dashboardIndexes = contentStore.dashboards.map(el => el.index); //將contentStore.dashboards這個object list中每個index導出變成array
 	if (dashboardIndexes.includes(index.value)) {
 		errorMessage.value.index = "Index不可以與其他儀表板重複";
 		return;
@@ -39,10 +43,10 @@ function handleSubmit() {
 
 	// createNewDashboard is currently a dummy function to demonstrate what creating a new dashboard may look like
 	// Connect a backend to actually implement the function or remove altogether
-	contentStore.createNewDashboard(name.value, index.value, icon.value);
+	contentStore.createNewDashboard(name.value, index.value, icon.value); //將新dashboard加入contentStore.dashboards
 	handleClose();
 }
-function handleClose() {
+function handleClose() { //關閉前清空所有資料
 	name.value = '';
 	index.value = '';
 	icon.value = '';
@@ -55,9 +59,12 @@ function handleClose() {
 </script>
 
 <template>
-	<DialogContainer :dialog="`addDashboard`" @onClose="handleClose">
+	<DialogContainer :dialog="`addDashboard`" @onClose="handleClose"> <!--v-on綁定handleClose作為emit自訂義監聽器@on-close的事件 (這裡用@onClose也可以過嗎?)-->
 		<div class="adddashboard">
+			<!--標題-->
 			<h2>新增自訂儀表板</h2>
+
+			<!--Name輸入按鈕-->
 			<div class="adddashboard-input">
 				<p v-if="errorMessage.name">{{ errorMessage.name }}</p>
 				<h3>
@@ -65,6 +72,8 @@ function handleClose() {
 				</h3>
 				<input type="text" v-model="name" />
 			</div>
+
+			<!--Index輸入按鈕-->
 			<div class="adddashboard-input">
 				<p v-if="errorMessage.index">{{ errorMessage.index }}</p>
 				<h3>
@@ -72,6 +81,8 @@ function handleClose() {
 				</h3>
 				<input type="text" v-model="index" />
 			</div>
+
+			<!--圖示按鈕-->
 			<h3>請選擇圖示*</h3>
 			<div class="adddashboard-icon">
 				<div v-for="item in icons" :key="item">
@@ -79,6 +90,8 @@ function handleClose() {
 					<label :for="item">{{ item }}</label>
 				</div>
 			</div>
+
+			<!--確定與取消鍵，當name && index && icon都有值時才顯示確定鍵-->
 			<div class="adddashboard-control">
 				<button class="adddashboard-control-cancel" @click="handleClose">取消</button>
 				<button v-if="name && index && icon" class="adddashboard-control-confirm" @click="handleSubmit">確定</button>

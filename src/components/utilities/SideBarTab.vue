@@ -15,10 +15,10 @@ const props = defineProps({
 	expanded: { type: Boolean }
 });
 
-const tabLink = computed(() => {
+const tabLink = computed(() => { //依據index預先建立URL 
 	return `${route.path}?index=${props.index}`;
 });
-const linkActiveOrNot = computed(() => {
+const linkActiveOrNot = computed(() => { //從route中獲取URL上現在的index，如果與現在props.index一樣，代表在同一頁，為true，進而改變以下css風格
 	return route.query.index === props.index ? true : false;
 });
 </script>
@@ -26,7 +26,7 @@ const linkActiveOrNot = computed(() => {
 <template>
 	<router-link :to="tabLink" :class="{ sidebartab: true, 'sidebartab-active': linkActiveOrNot }">
 		<span>{{ icon }}</span>
-		<h3 v-if="expanded">{{ title }}</h3>
+		<h3 v-if="expanded">{{ title }}</h3> <!--如果展開，顯示文字，否則只顯示圖片-->
 	</router-link>
 </template>
 
