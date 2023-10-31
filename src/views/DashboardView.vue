@@ -16,8 +16,8 @@ import ComponentContainer from '../components/components/ComponentContainer.vue'
 import MoreInfo from '../components/dialogs/MoreInfo.vue';
 import ReportIssue from '../components/dialogs/ReportIssue.vue';
 
-const contentStore = useContentStore();
-const dialogStore = useDialogStore();
+const contentStore = useContentStore(); //獲取useContentStore取得全域共用參數
+const dialogStore = useDialogStore(); //獲取useDialogStore用來設定彈跳視窗
 </script>
 
 <template>

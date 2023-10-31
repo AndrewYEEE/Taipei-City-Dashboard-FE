@@ -403,10 +403,10 @@ export const useMapStore = defineStore("map", {
 				app.mount("#vue-popup-content");
 			});
 		},
-		// Remove the current popup
+		// Remove the current popup (移除彈出視窗)
 		removePopup() {
 			if (this.popup) {
-				this.popup.remove();
+				this.popup.remove(); //先清除裡面內容後在設為null
 			}
 			this.popup = null;
 		},
@@ -484,7 +484,7 @@ export const useMapStore = defineStore("map", {
 
 		/* Clearing the map */
 
-		// Called when the user is switching between maps
+		// Called when the user is switching between maps (與下面clearEntireMap()差異在沒有清除this.map)
 		clearOnlyLayers() {
 			this.currentLayers.forEach((element) => {
 				this.map.removeLayer(element);
@@ -495,7 +495,7 @@ export const useMapStore = defineStore("map", {
 			this.currentVisibleLayers = [];
 			this.removePopup();
 		},
-		// Called when user navigates away from the map
+		// Called when user navigates away from the map (清除所有Map要用到的變數、彈出視窗)
 		clearEntireMap() {
 			this.currentLayers = [];
 			this.mapConfigs = {};

@@ -46,13 +46,13 @@ onMounted(() => { //VUE建立後(已經與DOM綁定，可操作this.$el)
 
 <template>
 	<div class="app-container">
-		<NotificationBar />
-		<NavBar />
+		<NotificationBar /> <!--隱藏畫面，顯示通知用-->
+		<NavBar /> <!--上方選擇欄-->
 		<div class="app-content">
-			<SideBar />
+			<SideBar /> <!--左邊清單-->
 			<div class="app-content-main">
-				<SettingsBar />
-				<RouterView></RouterView> <!--正中間畫面顯示方式邏輯-->
+				<SettingsBar /> <!--主畫面上面設定欄-->
+				<RouterView></RouterView> <!--依據URL上面的path決定要渲染的component，預設是dashboard-->
 			</div>
 		</div>
 		<InitialWarning /> <!--剛啟動時的跳出畫面-->

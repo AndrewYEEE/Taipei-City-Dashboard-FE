@@ -5,7 +5,7 @@
 The contentStore calls APIs to get content info and stores it.
 */
 
-import router from "../router/index";
+import router from "../router/index"; //從index.js獲取router物件，下方setDashboards()操作
 import { defineStore } from "pinia";
 import { useDialogStore } from "./dialogStore";
 import axios from "axios";
@@ -13,12 +13,12 @@ const { BASE_URL } = import.meta.env;
 
 export const useContentStore = defineStore("content", {
 	state: () => ({
-		// Stores all dashboards data. Reference the structure in /public/dashboards/all_dashboards.json //畫面左側"儀表板列表"清單，依據"index"的值決定要不要顯示
-		dashboards: [],
+		// Stores all dashboards data. Reference the structure in /public/dashboards/all_dashboards.json 
+		dashboards: [], //畫面左側"儀表板列表"清單，來自all_dashboards.json內"index"的值決定要不要顯示
 		// Stores all components data. Reference the structure in /public/dashboards/all_components.json //
-		components: {},
-		// Stores all contributors data. Reference the structure in /public/dashboards/all_contributors.json //
-		contributors: {},
+		components: {}, // ，來自all_components.json
+		// Stores all contributors data. Reference the structure in /public/dashboards/all_contributors.json 
+		contributors: {}, //主畫面>點擊"組件資訊"中"協作者"部份，來自all_contributors.json 
 		// Picks out the components that are map layers and stores them here
 		mapLayers: [],
 		// Picks out the components that are favorites and stores them here
@@ -26,35 +26,35 @@ export const useContentStore = defineStore("content", {
 		// Stores information of the current dashboard
 		currentDashboard: {
 			// /mapview or /dashboard
-			mode: null,
-			index: null,
-			name: null,
+			mode: null, //就是path
+			index: null, //儲存?index=xxx的xxx
+			name: null, 
 			content: [],
 		},
-		// Stores whether dashboards are loading
+		// Stores whether dashboards are loading (標記是否loading中，是的話會被DashboardView.vue偵測到刷新渲染)
 		loading: false,
-		// Stores whether an error occurred
+		// Stores whether an error occurred (標記是否error，是的話會被DashboardView.vue偵測到刷新渲染)
 		error: false,
 	}),
 	getters: {},
 	actions: {
 		/* Steps in adding content to the application */
 
-		// 1. Check the current path and execute actions based on the current path
-		setRouteParams(mode, index) {
+		// 1. Check the current path and execute actions based on the current path (每次切換頁面時都會被route呼叫)
+		setRouteParams(mode, index) { //mode是path name (ex:dashboard), index是$route.query,index的值 (URL上面?index的值)
 			this.error = false;
-			this.currentDashboard.mode = mode;
+			this.currentDashboard.mode = mode; //儲存path
 			// 1-1. Don't do anything if the path is the same
-			if (this.currentDashboard.index === index) {
+			if (this.currentDashboard.index === index) { //如果index參數沒變，啥都不做
 				return;
 			}
-			this.currentDashboard.index = index;
+			this.currentDashboard.index = index; //否則儲存index
 			// 1-2. If there is no contributor info, call the setContributors method (7.)
-			if (Object.keys(this.contributors).length === 0) {
+			if (Object.keys(this.contributors).length === 0) { //如果contributors是空的，重新從json獲取 "協作者"
 				this.setContributors();
 			}
 			// 1-3. If there is no dashboards info, call the setDashboards method (2.)
-			if (this.dashboards.length === 0) {
+			if (this.dashboards.length === 0) { //如果dashboards是空的，重新從json獲取 "左側 儀表板列表清單"
 				this.setDashboards();
 				return;
 			}
@@ -67,25 +67,32 @@ export const useContentStore = defineStore("content", {
 			this.setCurrentDashboardContent();
 		},
 		// 2. Call an API to get all dashboard info and reroute the user to the first dashboard in the list
-		setDashboards() {
-			this.loading = true;
+		setDashboards() { //從json獲取 "左側 儀表板列表清單"，裡面會一同呼叫setComponents()
+			this.loading = true; //標記loading中
 			axios
 				.get(`${BASE_URL}/dashboards/all_dashboards.json`)
 				.then((rs) => {
-					this.dashboards = rs.data.data;
-					if (!this.currentDashboard.index) {
+					this.dashboards = rs.data.data; //獲取json資料
+					console.log("setDashboards")
+					//如果現在currentDashboard.index是空的，也就是根本還沒有存取過?index=，則以json第一組資料的index為預設
+					//首次進入首頁時，index會是undefined，會觸發以下內容
+					if (!this.currentDashboard.index) { 
 						this.currentDashboard.index = this.dashboards[0].index;
 						router.replace({
 							query: {
 								index: this.currentDashboard.index,
-							},
-						});
+							}, //query是傳參數
+						}); //強制重新傳導，replace不會紀錄在history中，等同於 <router-link :to="{name: route.name , params: { id: 123 }}" replace>
+						//由於重新轉導，所以setRouteParams流程又會跑一次，但由於if (this.dashboards.length === 0) {}邏輯，這裡不會再觸發
+						console.log("replace happen")
 					}
+					console.log("after parser")
 					// Pick out the list of favorite components
 					const favorites = this.dashboards.find(
 						(item) => item.index === "favorites"
-					);
-					this.favorites = [...favorites.components];
+					);//獲取json中"favorites"物件
+
+					this.favorites = [...favorites.components]; //將所有favorites.components陣列內容複製一份出來
 					// After getting dashboard info, call the setComponents (3.) method to get component info
 					this.setComponents();
 				})
