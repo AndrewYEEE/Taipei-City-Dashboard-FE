@@ -21,24 +21,32 @@ const dialogStore = useDialogStore(); //獲取useDialogStore用來設定彈跳�
 </script>
 
 <template>
+	<!--如果是"map-layers"則渲染-->
+	<!--contentStore.currentDashboard.content從router.beforeEach()來，參考index.js-->
 	<!-- If the dashboard is map layers -->
 	<div v-if="contentStore.currentDashboard.index === 'map-layers'" class="dashboard">
 		<ComponentContainer v-for="item in contentStore.currentDashboard.content" :content="item" :is-map-layer="true"
-			:key="item.index" />
-		<ReportIssue />
+			:key="item.index" /> <!--content、is-map-layer是Dynamic Props，子元件內會接收-->
+		<ReportIssue /> <!--這裡應該用不到，因為沒有"組件資訊"可以點到-->
 	</div>
+	
+	<!--如果不是"map-layers"則渲染-->
 	<!-- other dashboards that have components -->
 	<div v-else-if="contentStore.currentDashboard.content.length !== 0" class="dashboard">
 		<ComponentContainer v-for="item in contentStore.currentDashboard.content" :content="item" :key="item.index" />
-		<MoreInfo />
-		<ReportIssue />
+		<MoreInfo /> <!--左下角"組件資訊"的預先渲染畫面-->
+		<ReportIssue /> <!--左下角"組件資訊"內，"回報問題"的預先渲染畫面-->
 	</div>
+
+	<!--檢查是否是loading，loading會由路由傳導時，觸發的setRouteParams()決定-->
 	<!-- if dashboard is still loading -->
 	<div v-else-if="contentStore.loading" class="dashboard dashboard-nodashboard">
 		<div class="dashboard-nodashboard-content">
 			<div></div>
 		</div>
 	</div>
+
+	<!--檢查是否是error，error會由路由傳導時，觸發的setRouteParams()決定-->
 	<!-- if dashboard failed to load -->
 	<div v-else-if="contentStore.error" class="dashboard dashboard-nodashboard">
 		<div class="dashboard-nodashboard-content">
@@ -46,6 +54,8 @@ const dialogStore = useDialogStore(); //獲取useDialogStore用來設定彈跳�
 			<h2>發生錯誤，無法載入儀表板</h2>
 		</div>
 	</div>
+
+	<!--如果contentStore.currentDashboard沒有東西時會到這，通常發生在all_dashboard.json是空的，則this.dashboards[0].index沒有東西-->
 	<!-- other dashboards that don't have components -->
 	<div v-else class="dashboard dashboard-nodashboard">
 		<div class="dashboard-nodashboard-content">

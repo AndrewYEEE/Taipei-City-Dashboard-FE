@@ -78,12 +78,16 @@ const chartOptions = ref({
 
 const selectedIndex = ref(null);
 
+//如果chart_config.map_filter為true才會觸發，用於在使用者點擊圖表時更換"地圖交叉比對"的圖層
 function handleDataSelection(e, chartContext, config) {
 	if (!props.chart_config.map_filter) {
 		return;
 	}
 	if (config.seriesIndex !== selectedIndex.value) {
-		mapStore.addLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][config.seriesIndex]);
+		mapStore.addLayerFilter(
+			`${props.map_config[0].index}-${props.map_config[0].type}`, 
+			props.chart_config.map_filter[0], 
+			props.chart_config.map_filter[1][config.seriesIndex]);
 		selectedIndex.value = config.seriesIndex;
 	} else {
 		mapStore.clearLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`);

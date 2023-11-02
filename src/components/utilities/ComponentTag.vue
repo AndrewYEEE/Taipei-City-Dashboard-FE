@@ -8,14 +8,17 @@ import { useDialogStore } from '../../store/dialogStore';
 const dialogStore = useDialogStore();
 
 defineProps({
-	icon: String, text: String, mode: {
+	icon: String, 
+	text: String, 
+	mode: {
 		type: String,
 		default: 'outline'
 	}
-});
+}); //Props，獲取icon、text、mode ('outline'、'small'...)
 </script>
 
 <template>
+	<!--用於顯示dashboard上每個元件中，字體框框顯示方式，例如"左下角空間資料框框"-->
 	<div :class="{ 'componenttag': true, 'componenttag-fill': mode === 'fill', 'componenttag-small': mode === 'small' }" @click="dialogStore.showNotification('info', '為內部版本更新頻率，本展示站台均為靜態資料')">
 		<span v-if="icon">{{ icon }}</span>
 		<p>{{ text }}</p>

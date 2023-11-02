@@ -11,9 +11,12 @@ import DownloadData from "./DownloadData.vue";
 
 const { BASE_URL } = import.meta.env;
 
+//===========獲取Store==========//
 const dialogStore = useDialogStore();
 const contentStore = useContentStore();
 
+
+//===========Method=========//
 function getLinkTag(link, index) {
 	if (link.includes("data.taipei")) {
 		return `資料集 - ${index + 1} (data.taipei)`;
@@ -28,17 +31,23 @@ function getLinkTag(link, index) {
 </script>
 
 <template>
+	<!--使用DialogContainer實現彈跳功能，綁定on-close自訂emit事件-->
 	<DialogContainer
 		:dialog="`moreInfo`"
-		@on-close="dialogStore.hideAllDialogs"
+		@on-close="dialogStore.hideAllDialogs" 
 	>
 		<div class="moreinfo">
+			<!--為"組件資訊"左側的圖表畫面，基本上與外層圖表內容一樣，只是將NotMoreInfo設為false-->
 			<ComponentContainer
 				:content="dialogStore.moreInfoContent"
 				:not-more-info="false"
 			/>
+			<!--為"組件資訊"右側的內容-->
 			<div class="moreinfo-info">
+				<!--為"組件資訊"右側不含下方按鈕的所有內容-->
+				<!--以下dialogStore.moreInfoContent請直接看成是contentStore.currentDashboard.content[]的content-->
 				<div class="moreinfo-info-data">
+					<!--基本說明欄位，資料直接從all_components.json來-->
 					<h3>
 						組件說明（{{
 							` ID: ${dialogStore.moreInfoContent.id}｜Index:
@@ -48,9 +57,12 @@ function getLinkTag(link, index) {
 					<p>{{ dialogStore.moreInfoContent.long_desc }}</p>
 					<h3>範例情境</h3>
 					<p>{{ dialogStore.moreInfoContent.use_case }}</p>
+					<!--"歷史資料"，如果content.history_data=true則渲染-->
 					<div v-if="dialogStore.moreInfoContent.history_data">
 						<h3>歷史軸</h3>
 						<h4>*點擊並拉動以檢視細部區間資料</h4>
+						<!--具體資料來源可參考contentStore.setCurrentDashboardChartData()-->
+						<!--series是history_data-->
 						<HistoryChart
 							:chart_config="
 								dialogStore.moreInfoContent.chart_config
@@ -106,27 +118,21 @@ function getLinkTag(link, index) {
 						</div>
 					</div>
 				</div>
+				<!--為"組件資訊"右側下方按鈕的內容-->
 				<div class="moreinfo-info-control">
 					<button
-						@click="
-							dialogStore.showReportIssue(
-								dialogStore.moreInfoContent.id,
-								dialogStore.moreInfoContent.name
-							)
-						"
+						@click="dialogStore.showReportIssue(dialogStore.moreInfoContent.id,dialogStore.moreInfoContent.name)"
 					>
 						<span>flag</span>回報問題
 					</button>
 					<button
-						v-if="
-							dialogStore.moreInfoContent.chart_config
-								.types[0] !== 'MetroChart'
-						"
+						v-if=" dialogStore.moreInfoContent.chart_config.types[0] !== 'MetroChart' "
 						@click="dialogStore.showDialog('downloadData')"
 					>
 						<span>download</span>下載資料
 					</button>
 				</div>
+				<!--為"下載資料"的隱藏頁面-->
 				<DownloadData />
 			</div>
 		</div>

@@ -53,7 +53,8 @@ router.beforeEach((to) => {
 		to.path.toLowerCase() === "/mapview"
 	) {
 		// console.log(to.path, to.query.index) //初次進入首頁時會是 "/dashboard undefined"
-		contentStore.setRouteParams(to.path, to.query.index); //類似useRoute()用法，to.path是目前路由物件的路徑， to.query是路由中查詢參數(ex: /home/01?favorite=yes ，會得到$route.query.favorite)
+		//類似useRoute()用法，to.path是目前路由物件的路徑， to.query是路由中查詢參數(ex: /home/01?favorite=yes ，會得到$route.query.favorite)
+		contentStore.setRouteParams(to.path, to.query.index); //獲取dashboards、components、contributors
 	}
 	// Clear the entire mapStore if the path doesn't start with /mapview (如果是瀏覽dashboard，清除mapview的渲染)
 	if (to.path.toLowerCase() !== "/mapview") { 

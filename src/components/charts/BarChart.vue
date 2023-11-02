@@ -76,6 +76,7 @@ const chartHeight = computed(() => {
 
 const selectedIndex = ref(null);
 
+//如果chart_config.map_filter為true才會觸發，用於在使用者點擊圖表時更換"地圖交叉比對"的圖層
 function handleDataSelection(e, chartContext, config) {
 	if (!props.chart_config.map_filter) {
 		return;
