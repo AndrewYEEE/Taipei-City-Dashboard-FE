@@ -1,19 +1,21 @@
 // Initial Position and Settings
+// 地圖公用設定
 export const MapObjectConfig = {
-	antialias: true,
-	container: "mapboxBox",
-	center: [121.536609, 25.044808],
+	antialias: true, //啟用抗拒齒
+	container: "mapboxBox", //直接對照包含一樣id名稱的 <div>
+	center: [121.536609, 25.044808], //中心點
 	maxBounds: [
 		[121.3870596781498, 24.95733863075891], // Southwest coordinates
 		[121.6998231749096, 25.21179993640203], // Northeast coordinates
 	],
-	zoom: 12.5,
+	zoom: 12.5, //放大
 	minZoom: 11,
 	maxZoom: 22,
 	projection: "globe", // display the map as a 3D globe
 };
 
 // Styles for base layer "Taipei Town"
+// "第一"預設圖層 "台北市的行政區" 的預設樣式 (Style)
 export const TaipeiTown = {
 	id: "taipei_town",
 	source: "taipei_town",
@@ -50,6 +52,7 @@ export const TaipeiTown = {
 };
 
 // Styles for Base Layer "Taipei Village"
+// "第二"預設圖層 "里界標籤" 的預設樣式 (Style)
 export const TaipeiVillage = {
 	id: "taipei_village",
 	source: "taipei_village",
@@ -72,6 +75,7 @@ export const TaipeiVillage = {
 	},
 };
 
+// "第三"預設圖層 "台北市建築物的3d模型" 的預設樣式 (Style)
 export const TaipeiBuilding = {
 	id: "taipei_building_3d",
 	source: "taipei_building_3d_source",

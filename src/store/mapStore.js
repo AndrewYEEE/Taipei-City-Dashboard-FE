@@ -38,11 +38,13 @@ export const useMapStore = defineStore("map", {
 		currentVisibleLayers: [],
 		// Stores all map configs for all layers (to be used to render popups)
 		mapConfigs: {},
-		// Stores the mapbox map instance
+		// Stores the mapbox map instance (用於存放MapBox物件以控制地圖操作)
 		map: null,
 		// Stores popup information
-		popup: null,
-		// Stores saved locations
+		popup: null, //用於儲存彈跳視窗內容 (例如點擊公車站牌圖標時觸發儲存)
+		// Stores saved locations (用於儲存座標位置，在savedLocations.js中已經有預設四個座標點)
+		// 初始建立時直接以savedLocations.js內容初始化
+		// 格式: [[lng, lat], zoom(放大), pitch(3D角度), bearing(東西南北，正北方為 0), savedLocationName]
 		savedLocations: savedLocations,
 		// Store currently loading layers,
 		loadingLayers: [],
@@ -51,34 +53,54 @@ export const useMapStore = defineStore("map", {
 	actions: {
 		/* Initialize Mapbox */
 		// 1. Creates the mapbox instance and passes in initial configs
+		// 每次使用者進入"地圖交叉比對"畫面時就會觸發，載入mapConfig、mapStyle，並觸發initializeBasicLayers()
 		initializeMapBox() {
-			this.map = null;
+			//清空地圖
+			this.map = null; 
+			
+			//獲取Mapbox Token
 			const MAPBOXTOKEN = import.meta.env.VITE_MAPBOXTOKEN;
+			
+			//利用mapboxGl建立Mapbox物件
 			mapboxGl.accessToken = MAPBOXTOKEN;
 			this.map = new mapboxGl.Map({
-				...MapObjectConfig,
-				style: mapStyle,
+				...MapObjectConfig, //載入地圖通用設定，從mapConfig.js來
+				style: mapStyle,    //載入地圖風格文件
 			});
-			this.map.addControl(new mapboxGl.NavigationControl());
+			//新增導航控制條
+			this.map.addControl(new mapboxGl.NavigationControl()); 
+
+			//關閉雙點擊放大功能
 			this.map.doubleClickZoom.disable();
+
+			//設置事件監聽 (https://docs.mapbox.com/mapbox-gl-js/api/map/#events-interaction)
 			this.map
-				.on("style.load", () => {
+				//監聽事件: Map Style樣式載入時觸發
+				.on("style.load", () => { 
 					this.initializeBasicLayers();
 				})
-				.on("click", (event) => {
-					if (this.popup) {
+				
+				//監聽事件: 使用者點擊地圖時觸發
+				//目的是要處裡地圖上彈跳視窗的內容
+				.on("click", (event) => { 
+					if (this.popup) { //如果現在popup有東西，先清空
 						this.popup = null;
 					}
-					this.addPopup(event);
+					this.addPopup(event);  //處裡地圖上彈跳視窗
 				})
-				.on("idle", () => {
+
+				//監聽事件: 所有加載、動畫等均已完成，在地圖進入“空閒”狀態之前渲染最後一幀後觸發
+				
+				.on("idle", () => { 
 					this.loadingLayers = this.loadingLayers.filter(
 						(el) => el !== "rendering"
 					);
 				});
 		},
+
 		// 2. Adds three basic layers to the map (Taipei District, Taipei Village labels, and Taipei 3D Buildings)
 		// Due to performance concerns, Taipei 3D Buildings won't be added in the mobile version
+		// 
 		initializeBasicLayers() {
 			const authStore = useAuthStore();
 			fetch(`${BASE_URL}/mapData/taipei_town.geojson`)
@@ -355,18 +377,22 @@ export const useMapStore = defineStore("map", {
 
 		/* Popup Related Functions */
 		// Adds a popup when the user clicks on a item. The event will be passed in.
+		// 處理使用者點擊的東西，並建立彈跳視窗
 		addPopup(event) {
 			// Gets the info that is contained in the coordinates that the user clicked on (only visible layers)
 			const clickFeatureDatas = this.map.queryRenderedFeatures(
-				event.point,
+				event.point, //用於設定系統要捕捉的範圍，這裡是一個點，但官網是直接抓一個範圍!! (https://docs.mapbox.com/mapbox-gl-js/example/queryrenderedfeatures-around-point/)
 				{
-					layers: this.currentVisibleLayers,
+					layers: this.currentVisibleLayers, //用於設置你要抓取資料的圖層Layer是哪一層，因為一個TileSet可以有很多層。
 				}
 			);
 			// Return if there is no info in the click
+			// 如果無法獲取使用者點擊資料，直接返回
 			if (!clickFeatureDatas || clickFeatureDatas.length === 0) {
 				return;
 			}
+
+			// console.log(clickFeatureDatas)
 			// Parse clickFeatureDatas to get the first 3 unique layer datas, skip over already included layers
 			const mapConfigs = [];
 			const parsedPopupContent = [];
@@ -385,25 +411,33 @@ export const useMapStore = defineStore("map", {
 				.setLngLat(event.lngLat)
 				.setHTML('<div id="vue-popup-content"></div>')
 				.addTo(this.map);
+
 			// Mount a vue component (MapPopup) to the id "vue-popup-content" and pass in data
+			// 建立一個自訂義Vue Component，並以MapPopup Component為模板
 			const PopupComponent = defineComponent({
 				extends: MapPopup,
 				setup() {
 					// Only show the data of the topmost layer
-					return {
+					// 這裡Return的東西，在MapPopup模板內可以用"this"接收到
+					return { 
 						popupContent: parsedPopupContent,
 						mapConfigs: mapConfigs,
 						activeTab: ref(0),
 					};
 				},
 			});
+
 			// This helps vue determine the most optimal time to mount the component
+			// nextTick : 確保裡面 callback function 執行的任務，會等待畫面都更新結束後才執行
+			// 掛載到剛剛定義的DOM節點上
 			nextTick(() => {
 				const app = createApp(PopupComponent);
 				app.mount("#vue-popup-content");
 			});
 		},
-		// Remove the current popup (移除彈出視窗)
+
+		// Remove the current popup 
+		// (移除彈出視窗)
 		removePopup() {
 			if (this.popup) {
 				this.popup.remove(); //先清除裡面內容後在設為null
@@ -414,6 +448,7 @@ export const useMapStore = defineStore("map", {
 		/* Functions that change the viewing experience of the map */
 
 		// Add new saved location that users can quickly zoom to
+		// 讓使用者新增一個位置到this.savedLocations
 		addNewSavedLocation(name) {
 			const coordinates = this.map.getCenter();
 			const zoom = this.map.getZoom();
@@ -421,8 +456,9 @@ export const useMapStore = defineStore("map", {
 			const bearing = this.map.getBearing();
 			this.savedLocations.push([coordinates, zoom, pitch, bearing, name]);
 		},
+
 		// Zoom to a location
-		// [[lng, lat], zoom, pitch, bearing, savedLocationName]
+		// 用於改變當前地圖座標位置 ([[lng, lat], zoom, pitch, bearing, savedLocationName])
 		easeToLocation(location_array) {
 			this.map.easeTo({
 				center: location_array[0],
@@ -432,10 +468,14 @@ export const useMapStore = defineStore("map", {
 				bearing: location_array[3],
 			});
 		},
+
 		// Remove a saved location
+		// 依據給予的index移除this.savedLocations中儲存的位置
+		// 除非應用重啟，否則不會初始化回來
 		removeSavedLocation(index) {
 			this.savedLocations.splice(index, 1);
 		},
+
 		// Force map to resize after sidebar collapses
 		resizeMap() {
 			if (this.map) {

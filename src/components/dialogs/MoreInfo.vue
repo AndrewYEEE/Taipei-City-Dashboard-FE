@@ -73,6 +73,7 @@ function getLinkTag(link, index) {
 							"
 						/>
 					</div>
+					<!--"協作者"，根據content.contributors[]決定，可以多位-->
 					<div v-if="dialogStore.moreInfoContent.contributors">
 						<h3>協作者</h3>
 						<div class="moreinfo-info-contributors">
@@ -103,6 +104,7 @@ function getLinkTag(link, index) {
 							</div>
 						</div>
 					</div>
+					<!--"相關資料"，根據content.links[]決定，可以多個連結-->
 					<div v-if="dialogStore.moreInfoContent.links">
 						<h3>相關資料</h3>
 						<div class="moreinfo-info-links">

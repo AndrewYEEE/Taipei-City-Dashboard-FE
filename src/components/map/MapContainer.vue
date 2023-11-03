@@ -8,41 +8,66 @@ import { useContentStore } from '../../store/contentStore';
 
 import MobileLayers from '../dialogs/MobileLayers.vue';
 
+
+//==========Store========
 const mapStore = useMapStore();
 const dialogStore = useDialogStore();
 const contentStore = useContentStore();
 
+
+//==========Ref==========
 const newSavedLocation = ref('');
 
+
+//==========Method=======
+//當使用者按下鍵盤ENTER觸發，用來儲存當前使用者看到的位置
 function handleSubmitNewLocation() {
 	mapStore.addNewSavedLocation(newSavedLocation.value);
 	newSavedLocation.value = '';
 }
 
+//會在每次進入地圖畫面時觸發，初始化地圖
 onMounted(() => {
+	console.log("onMount trigger!!!")
 	mapStore.initializeMapBox();
 });
 </script>
 
 <template>
 	<div class="mapcontainer">
-		<div id="mapboxBox">
+		<!--主要地圖畫面-->
+		<div id="mapboxBox"> <!--mapConfig.js的設定會讓Map物件知道要套用到這-->
 			<div class="mapcontainer-loading" v-if="mapStore.loadingLayers.length > 0">
 				<div></div>
 			</div>
+
+			<!--只在行動裝置上渲染-->
 			<button class="mapcontainer-layers show-if-mobile"
 				@click="dialogStore.showDialog('mobileLayers')"><span>layers</span></button>
 			<!-- The key prop informs vue that the component should be updated when switching dashboards -->
 			<MobileLayers :key="contentStore.currentDashboard.index" />
 		</div>
+
+		<!--地圖下方的按鈕，移動聚焦座標功能-->
+		<!--只有在非行動裝置上渲染-->
 		<div class="mapcontainer-controls hide-if-mobile">
+			<!--返回預設座標位置，是寫死的-->
 			<button @click="mapStore.easeToLocation([[121.536609, 25.044808], 12.5, 0, 0])">返回預設</button>
+			
+			<!--從savedLocations中獲取座標，[[lng, lat], zoom, pitch, bearing, savedLocationName]-->
 			<div v-for="(item, index) in mapStore.savedLocations" :key="`${item[4]}-${index}`">
-				<button @click="mapStore.easeToLocation(item)">{{ item[4] }}
-				</button>
-				<div class="mapcontainer-controls-delete" @click="mapStore.removeSavedLocation(index)"><span>delete</span>
+				<!--依據item[4](名稱)設定成按鈕標題-->
+				<button @click="mapStore.easeToLocation(item)">{{ item[4] }}</button>
+				<!--刪除按鈕，他是直接以index作為要刪除的元素-->
+				<div class="mapcontainer-controls-delete" @click="mapStore.removeSavedLocation(index)">
+					<span>delete</span>
 				</div>
 			</div>
+
+			<!--使用v-on監聽鍵盤ENTER事件，當使用者按下ENTER後觸發handleSubmitNewLocation()-->
+			<!--當使用者儲存項目已經超過10項時自動隱藏此按鈕，限制長度6個字-->
+			<!--這裡是真的只讓使用者輸入名稱而已，剩下的座標、角度、大小等直接從Map上面抓-->
+			<!--使用v-on監聽focusout，當使用者離開輸入時，自動清空newSavedLocation-->
 			<input v-if="mapStore.savedLocations.length < 10" type="text" placeholder="新增後按Enter" v-model="newSavedLocation"
 				maxlength="6" @focusout="newSavedLocation = ''" @keypress.enter="handleSubmitNewLocation" />
 		</div>

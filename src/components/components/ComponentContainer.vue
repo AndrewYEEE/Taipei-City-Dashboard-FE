@@ -133,6 +133,7 @@ function toggleFavorite() {
 		<!-- :chart_config 作為ApexChart的option 、 :series 作為ApexChart的data 、:map_config是用於改變"地圖交叉比對"的圖層，取決於chart_config.map_filter是否為true -->
 		<div :class="{ 'componentcontainer-chart': true, 'maplayer-chart': isMapLayer }" v-if="content.chart_data">
 			<!-- The components referenced here can be edited in /components/charts -->
+			<!-- 如果是map-layer類型，則這裡activeChart會是"MapLegend"，固定會呼叫"MapLegend.vue"，由all_component.json決定-->
 			<component v-for="item in content.chart_config.types" :activeChart="activeChart" :is="item"
 				:chart_config="content.chart_config" :series="content.chart_data" :map_config="content.map_config"
 				:key="`${props.content.index}-${item}-chart`">

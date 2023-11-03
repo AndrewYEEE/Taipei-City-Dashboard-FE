@@ -10,22 +10,29 @@ import DialogContainer from "./DialogContainer.vue";
 const dialogStore = useDialogStore();
 
 // Stores the inputted dashboard name
+// moreInfoContent.name從ComponentContainer.vue來，可以直接看作contentStore.currentDashboard.content
 const name = ref(dialogStore.moreInfoContent.name);
+
 // Stores the file type
+// 預設使用JSON格式
 const fileType = ref("JSON");
 
+// 獲取JSON格式結果，包含chart_data與categories (使用encodeURIComponent)
 const parsedJson = computed(() => {
 	let json = {};
 	json.data = dialogStore.moreInfoContent.chart_data;
-	if (dialogStore.moreInfoContent.chart_config.categories) {
+	// 如果chart_config中有categories資訊，則多附帶進json (一些應用圖表會用到，例如BarPercentChart)
+	if (dialogStore.moreInfoContent.chart_config.categories) { 
 		json.categories = dialogStore.moreInfoContent.chart_config.categories;
 	}
 
+	//轉換為JSON格式
 	const jsonString = encodeURIComponent(JSON.stringify(json));
 	// const base64Json = btoa(jsonString)
 	return jsonString;
 });
 
+// 獲取CSV格式結果，包含chart_data與chart_config (使用encodeURI)
 const parsedCsv = computed(() => {
 	const csvString = jsonToCsv(
 		dialogStore.moreInfoContent.chart_data,
@@ -34,23 +41,31 @@ const parsedCsv = computed(() => {
 	return encodeURI(csvString);
 });
 
+//這裡等同handleClose()
 function handleSubmit() {
 	handleClose();
 }
+
+//??? 
 function handleClose() {
-	name.value = dialogStore.moreInfoContent.name;
-	dialogStore.dialogs.downloadData = false;
+	name.value = dialogStore.moreInfoContent.name; //設置name Ref ex: "交通路況"
+	dialogStore.dialogs.downloadData = false; //dialogStore裡沒有downloadData阿??
 }
 </script>
 
 <template>
 	<DialogContainer :dialog="`downloadData`" @onClose="handleClose">
 		<div class="downloaddata">
+			<!--Title-->
 			<h2>下載資料</h2>
+			
+			<!--輸入檔名Input，綁定Ref name -->
 			<div class="downloaddata-input">
 				<h3>請輸入檔名</h3>
 				<input type="text" v-model="name" />
 			</div>
+
+			<!--選擇檔案類型，綁定Ref fileType-->
 			<h3>請選擇檔案格式</h3>
 			<div>
 				<input
@@ -76,6 +91,8 @@ function handleClose() {
 					CSV (UTF-8)
 				</label>
 			</div>
+
+			<!--下載功能，他們下載是直接將資料塞在href-->
 			<div class="downloaddata-control">
 				<button
 					class="downloaddata-control-cancel"

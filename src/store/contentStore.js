@@ -20,7 +20,7 @@ export const useContentStore = defineStore("content", {
 		// Stores all contributors data. Reference the structure in /public/dashboards/all_contributors.json 
 		contributors: {}, //主畫面>點擊"組件資訊"中"協作者"部份，來自all_contributors.json，由setRouteParams()觸發
 		// Picks out the components that are map layers and stores them here
-		mapLayers: [], //紀錄哪些元件有""圖資資訊""，由setMapLayers()獲取，由setRouteParams()觸發
+		mapLayers: [], //專門紀錄哪些元件屬於"圖資資訊"主題，由setMapLayers()獲取，由setRouteParams()觸發
 		// Picks out the components that are favorites and stores them here
 		favorites: [],
 		// Stores information of the current dashboard
@@ -63,7 +63,10 @@ export const useContentStore = defineStore("content", {
 				this.setDashboards();
 				return;
 			}
+			
 			// 1-5. If all info is present, skip steps 2, 3, 4, 7 and call the setCurrentDashboardContent method (5.)
+			//正常情況下，不是第一次啟動，dashboards[]不是空，index有東西，則都會走到這
+			//刷新this.currentDashboard 
 			this.setCurrentDashboardContent(); //如果dashboards ("左側 儀表板列表清單") 有東西，也有index參數，則直接呼叫setCurrentDashboardContent()主要是獲取現在dashboard上要顯示的元件有哪些，以及獲取當前物件的chartData與historyData
 		},
 		// 2. Call an API to get all dashboard info and reroute the user to the first dashboard in the list

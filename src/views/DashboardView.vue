@@ -21,7 +21,7 @@ const dialogStore = useDialogStore(); //獲取useDialogStore用來設定彈跳�
 </script>
 
 <template>
-	<!--如果是"map-layers"則渲染-->
+	<!--如果現在主題是"map-layers"則渲染-->
 	<!--contentStore.currentDashboard.content從router.beforeEach()來，參考index.js-->
 	<!-- If the dashboard is map layers -->
 	<div v-if="contentStore.currentDashboard.index === 'map-layers'" class="dashboard">
