@@ -107,13 +107,58 @@ const chartOptions = ref({
 //用於map"地圖交叉比對"的圖層
 const selectedIndex = ref(null);
 
-//如果chart_config.map_filter為true才會觸發，用於在使用者點擊圖表時更換"地圖交叉比對"的圖層
+// 用於在使用者點擊圖表特定資料點時更換圖層
+// 如果該應用支援map_filter (也就是除了基本Map顯示外還支援顯示不同圖層)
+// 如果現在被點擊的資料沒有被點過，則觸發mapStore.addLayerFilter()
 function handleDataSelection(e, chartContext, config) {
+	// 如果該應用支援map_filter則往下 (也就是除了基本Map顯示外還支援顯示不同圖層)
 	if (!props.chart_config.map_filter) { //如果chart_config.map_filter為false，不做事
 		return;
 	}
+	// 如果現在被點擊的資料沒有被點過，則觸發mapStore.addLayerFilter()
 	if (config.dataPointIndex !== selectedIndex.value) {
-		mapStore.addLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][config.dataPointIndex]);
+		/*
+			"map_config": [
+				{
+					"index": "work_soil_liquefaction",
+					"paint": {
+						"fill-color": [
+							"match",
+							["get", "class"],
+							"高",
+							"#c87a74",
+							"中",
+							"#c8b974",
+							"低",
+							"#9bc874",
+							"#9c967f"
+						]
+					},
+					"property": [
+						{
+							"key": "class",
+							"name": "潛勢分級"
+						}
+					],
+					"type": "fill",
+					"title": "土壤液化潛勢"
+				}
+			],
+			"chart_config": {
+				"types": ["MapLegend"],
+				"map_filter": ["class", ["高", "中", "低"]]
+			},
+		*/
+		/*
+		mapStore.addLayerFilter(
+			"work_soil_liquefaction-fill",
+			"class",
+			"高");
+		*/
+		mapStore.addLayerFilter(
+			`${props.map_config[0].index}-${props.map_config[0].type}`, 
+			props.chart_config.map_filter[0], 
+			props.chart_config.map_filter[1][config.dataPointIndex]);
 		selectedIndex.value = config.dataPointIndex;
 	} else {
 		mapStore.clearLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`);

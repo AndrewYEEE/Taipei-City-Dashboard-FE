@@ -1,8 +1,8 @@
 // Initial Position and Settings
-// 地圖公用設定
+// 地圖公用設定 (可以據Layer分開設定)
 export const MapObjectConfig = {
 	antialias: true, //啟用抗拒齒
-	container: "mapboxBox", //直接對照包含一樣id名稱的 <div>
+	container: "mapboxBox", //直接對照包含一樣id名稱的 <div> (MapContainer.vue)
 	center: [121.536609, 25.044808], //中心點
 	maxBounds: [
 		[121.3870596781498, 24.95733863075891], // Southwest coordinates
@@ -19,7 +19,7 @@ export const MapObjectConfig = {
 export const TaipeiTown = {
 	id: "taipei_town",
 	source: "taipei_town",
-	type: "symbol",
+	type: "symbol", //地圖類型
 	layout: {
 		"text-field": ["to-string", ["get", "TNAME"]],
 		"text-size": [
@@ -108,6 +108,7 @@ export const TaipeiBuilding = {
 // Map base styles and preset variations
 
 // Paint Properties
+// 共用的Paint風格屬性，於addMapLayer()使用
 export const maplayerCommonPaint = {
 	circle: {
 		"circle-radius": [
@@ -246,6 +247,7 @@ export const maplayerCommonPaint = {
 };
 
 // Layout Properties
+// 共用的Layout風格屬性，於addMapLayer()使用
 export const maplayerCommonLayout = {
 	line: {
 		"line-join": "round",

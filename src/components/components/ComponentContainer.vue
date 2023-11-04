@@ -18,7 +18,7 @@ const contentStore = useContentStore();
 const props = defineProps({
 	// The complete config (incl. chart data) of a dashboard component will be passed in
 	content: { type: Object }, //contents是每個單一元件的chartdata，如果是一般元件，則包含chartData與historyData
-	notMoreInfo: { type: Boolean, default: true }, //?? //看起來是顯示元件右上角的按鈕，預設是true，如果是從"組件資訊"進來，則為false
+	notMoreInfo: { type: Boolean, default: true }, //看起來是顯示元件右上角的按鈕，預設是true，如果是從"組件資訊"進來，則為false
 	isMapLayer: { type: Boolean, default: false }, //是否是"map-layer"
 }); //接收父元件的Props
 
@@ -26,6 +26,7 @@ const props = defineProps({
 //=======Ref========//
 // The default active chart is the first one in the list defined in the dashboard component
 //從content中獲取chart_config指定的第一個Chart樣式，具體可以參考all_components.json
+//用來決定當前圖表要不要渲染
 const activeChart = ref(props.content.chart_config.types[0]); 
 
 
