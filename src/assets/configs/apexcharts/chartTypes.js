@@ -12,5 +12,5 @@ export const chartTypes = {
 	RadarChart: "雷達圖", // [V] V
 	HeatmapChart: "熱力圖", // [V] V
 	PolarChart: "極座標圖", // []
-	WordcloudChart: "文字雲", // []
+	WordsCloudChart: "文字雲", // []
 };

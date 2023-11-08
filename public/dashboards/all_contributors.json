@@ -4,6 +4,11 @@
 			"id": "tuic",
 			"name": "臺北大數據中心",
 			"link": "https://tuic.gov.taipei/zh"
+		},
+		"cht": {
+			"id": "cht",
+			"name": "中華電信",
+			"link": "https://www.cht.com.tw/"
 		}
 	}
 }

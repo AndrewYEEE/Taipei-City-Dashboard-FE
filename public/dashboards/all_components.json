@@ -4187,6 +4187,31 @@
 				"https://github.com/tpe-doit/YouBike-Optimization"
 			],
 			"contributors": ["tuic"]
+		},
+		"999": {
+			"id": 999,
+			"index": "word_cloud",
+			"history_data": false,
+			"history_data_color": ["#EC4037", "#BBB"],
+			"chart_config": {
+				"color": ["#4dd97a", "#ff8c1a", "#EC4037"],
+				"types": ["WordsCloudChart","BarChart"],
+				"unit": "個"
+			},
+			"name": "文字雲",
+			"source": "交通局",
+			"time_from": "2023-06-02T00:00:00+08:00",
+			"time_to": null,
+			"update_freq": 10,
+			"update_freq_unit": "minute",
+			"short_desc": "顯示文字雲",
+			"long_desc": "顯示文字雲。",
+			"use_case": "文字雲。",
+			"links": [
+				""
+			],
+			"tags": [],
+			"contributors": ["cht"]
 		}
 	}
 }
