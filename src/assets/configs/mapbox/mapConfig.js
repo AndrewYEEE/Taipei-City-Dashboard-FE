@@ -110,7 +110,7 @@ export const TaipeiBuilding = {
 // Paint Properties
 // 共用的Paint風格屬性，於addMapLayer()使用
 export const maplayerCommonPaint = {
-	circle: {
+	circle: { //通用設定
 		"circle-radius": [
 			"interpolate",
 			["linear"],

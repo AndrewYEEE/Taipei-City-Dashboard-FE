@@ -4212,6 +4212,138 @@
 			],
 			"tags": [],
 			"contributors": ["cht"]
+		},
+		"9999": {
+			"id": 9999,
+			"index": "etl_example2",
+			"map_config": [
+				{
+					"index": "dis_origin_center",
+					"paint": {
+						"circle-color": [
+							"match",
+							["get", "type"],
+							"住宿機構",
+							"#FF4500",
+							"團體家庭",
+							"#FF4500",
+							"B0102",
+							"#FF4500",
+							"日間服務機構",
+							"#FF4500",
+							"社區日間作業設施",
+							"#FF4500",
+							"身障社區長照機構（日間照顧）",
+							"#FF4500",
+							"精神障礙者會所",
+							"#905EE6",
+							"身心障礙者資源中心",
+							"#EDAEEC",
+							"福利服務中心",
+							"#EDAEEC",
+							"輔具服務中心",
+							"#EDAEEC",
+							"身心障礙者社區日間活動據點",
+							"#EDAEEC",
+							"共融式遊戲場",
+							"#EDAEEC",
+							"委託方案",
+							"#EDAEEC",
+							"身障社區長照機構(日間照顧)",
+							"#EDAEEC",
+							"#9C2A4B"
+						]
+					},
+					"property": [
+						{
+							"key": "name",
+							"name": "機構名稱"
+						},
+						{
+							"key": "type",
+							"name": "機構類型"
+						},
+						{
+							"key": "attr",
+							"name": "營業類型"
+						},
+						{
+							"key": "town",
+							"name": "行政區"
+						},
+						{
+							"key": "address",
+							"name": "地址"
+						},
+						{
+							"key": "tel",
+							"name": "電話"
+						}
+					],
+					"type": "circle",
+					"size": null,
+					"icon": null,
+					"title": "身障友善機構"
+				},{
+					"index": "dis_origin_radius",
+					"paint": {
+						"line-color": "#B4654A",
+						"line-dasharray": [2, 2],
+						"line-opacity": 0.8
+					},
+					"property": [
+						{ "key": "name", "name": "機構名稱" },
+						{ "key": "attr", "name": "營運模式" },
+						{ "key": "type", "name": "類型" },
+						{ "key": "address", "name": "地址" },
+						{
+							"key": "town",
+							"name": "行政區"
+						}
+					],
+					"type": "line",
+					"size": null,
+					"icon": null,
+					"title": "身障友善場所服務範圍"
+				}
+			],
+			"chart_config": {
+				"color": ["#33C552"],
+				"types": ["DistrictChart", "ColumnChart"],
+				"unit": "間",
+				"map_filter": [
+					"town",
+					[
+						"北投區",
+						"士林區",
+						"內湖區",
+						"南港區",
+						"松山區",
+						"信義區",
+						"中山區",
+						"大同區",
+						"中正區",
+						"萬華區",
+						"大安區",
+						"文山區"
+					]
+				]
+			},
+			"history_data": false,
+			"source": "臺北市資料平台",
+			"time_from": "2022-08-15T00:00:00Z",
+			"time_to": null,
+			"update_freq": null,
+			"update_freq_unit": null,
+			"name": "ETL資料處理練習2",
+			"short_desc": "ETL資料處理練習2 - 顯示身障友善機構位置數量",
+			"long_desc": "ETL資料處理練習2 - 顯示身障友善機構位置數量。",
+			"use_case": "將身障機構收容暨空位狀態與臺北市身障社區長照機構合併成一個資料集，並產生適合的空間資訊。",
+			"links": [
+				"https://data.taipei/"
+			],
+			"tags": [],
+			"contributors": ["cht"]
 		}
 	}
 }

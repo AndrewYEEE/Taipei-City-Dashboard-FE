@@ -29,7 +29,7 @@ const chartOptions = ref({
 	grid: {
 		show: false,
 	},
-	//設定右邊的圖例，這裡是如果資料總類數大於1則啟用
+	//設定圖例，這裡是如果資料總類數大於1則啟用
 	legend: {
 		show: props.series.length > 1 ? true : false,
 	},

@@ -62,10 +62,17 @@ function handleDataSelection(index) {
 		return;
 	}
 	if (index !== selectedIndex.value) {
-		mapStore.addLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][index]);
+		// 原始作者只會看第一層 map_config[0]，導致第二層以上Layer不會跟著篩選
+		for (let i = 0; i < props.map_config.length; i++) {
+			mapStore.addLayerFilter(`${props.map_config[i].index}-${props.map_config[i].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][index]);
+		}
+		// mapStore.addLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][index]);
 		selectedIndex.value = index;
 	} else {
-		mapStore.clearLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`);
+		// 原始作者只會看第一層 map_config[0]，導致第二層以上Layer不會跟著篩選
+		for (let i = 0; i < props.map_config.length; i++) {
+			mapStore.clearLayerFilter(`${props.map_config[i].index}-${props.map_config[i].type}`);
+		}
 		selectedIndex.value = null;
 	}
 }

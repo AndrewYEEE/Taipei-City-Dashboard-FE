@@ -217,6 +217,7 @@ export const useMapStore = defineStore("map", {
 			*/
 			map_config.forEach((element) => {
 				// EX: work_soil_liquefaction-fill
+				// EX: patrol_rain_sewer-circle
 				let mapLayerId = `${element.index}-${element.type}`; 
 				
 				// 1-1. If the layer exists, simply turn on the visibility and add it to the visible layers list
@@ -242,6 +243,49 @@ export const useMapStore = defineStore("map", {
 				//則先複製一份element內容，並新增屬性layerId=mapLayerId
 				let appendLayerId = { ...element }; //shadow Copy
 				appendLayerId.layerId = mapLayerId; //新增layerId屬性
+				/* EX: 
+					{
+						"layerId": "patrol_rain_sewer-circle"
+						"index": "patrol_rain_sewer",
+						"paint": {
+							"circle-color": [
+								"interpolate",
+								["linear"],
+								["to-number", ["get", "ground_far"]],
+								-100,
+								"#F92623",
+								0.51,
+								"#81bcf5"
+							]
+						},
+						"property": [
+							{
+								"key": "station_no",
+								"name": "NO"
+							},
+							{
+								"key": "station_name",
+								"name": "站名"
+							},
+							{
+								"key": "ground_far",
+								"name": "距地面高[公尺]"
+							},
+							{
+								"key": "level_out",
+								"name": "水位高[公尺]"
+							},
+							{
+								"key": "rec_time",
+								"name": "紀錄時間"
+							}
+						],
+						"type": "circle",
+						"size": "big",
+						"title": "下水道"
+					}
+				*/
+
 
 				// 1-2. If the layer doesn't exist, call an API to get the layer data
 				//將mapLayerId加入this.loadingLayers[]
@@ -255,6 +299,7 @@ export const useMapStore = defineStore("map", {
 		// 用於獲取當前應用需要的Layer Geojson檔案
 		// 由addToMapLayerList()觸發，透過map_config的index獲取geojson之後，呼叫addMapLayerSource()
 		fetchLocalGeoJson(map_config) {
+			//EX: /mapData/patrol_rain_sewer.geojson
 			axios
 				.get(`${BASE_URL}/mapData/${map_config.index}.geojson`)
 				.then((rs) => {
@@ -268,6 +313,7 @@ export const useMapStore = defineStore("map", {
 		// 由fetchLocalGeoJson()觸發，以"layerId-source"格式匯入map，並依據type類別決定要呼叫AddArcMapLayer()或AddMapLayer()
 		addMapLayerSource(map_config, data) {
 			// 匯入layer到map
+			// 這裡 "patrol_rain_sewer-circle-source" 只是個名稱
 			this.map.addSource(`${map_config.layerId}-source`, {
 				type: "geojson",
 				data: { ...data },
@@ -290,7 +336,7 @@ export const useMapStore = defineStore("map", {
 		addMapLayer(map_config) {
 			let extra_paint_configs = {};
 			let extra_layout_configs = {};
-			//如果map_config有icon參數，則另外添加extra_paint_configs/extra_layout_configs設定
+			//如果map_config有icon參數 (Symbol類型需要)，則另外添加extra_paint_configs/extra_layout_configs設定
 			if (map_config.icon) {
 				extra_paint_configs = {
 					...maplayerCommonPaint[
@@ -303,20 +349,42 @@ export const useMapStore = defineStore("map", {
 					],
 				};
 			}
-			//如果map_config有size參數，則另外添加extra_paint_configs/extra_layout_configs設定
+			//如果map_config有size參數 (Circle等類型需要)，則另外添加extra_paint_configs/extra_layout_configs設定
 			if (map_config.size) {
 				extra_paint_configs = {
-					...extra_paint_configs,
+					...extra_paint_configs, //延伸原本的內容
 					...maplayerCommonPaint[
 						`${map_config.type}-${map_config.size}`
 					],
 				};
+					/* 
+						EX: maplayerCommonPaint['circle-big']
+						"circle-radius": [
+							"interpolate",
+							["linear"],
+							["zoom"],
+							11.99,
+							3.5,
+							12,
+							3.5,
+							13.5,
+							4,
+							15,
+							5,
+							22,
+							7,
+						],	
+					*/
+
 				extra_layout_configs = {
-					...extra_layout_configs,
+					...extra_layout_configs, //延伸原本的內容
 					...maplayerCommonLayout[
 						`${map_config.type}-${map_config.size}`
 					],
 				};
+				/* EX: maplayerCommonLayout['circle-big']
+					//回傳空
+				*/
 			}
 
 			//??????不曉得為啥要加這個，this.loadingLayers不是用來儲存layerId嗎?
@@ -324,12 +392,12 @@ export const useMapStore = defineStore("map", {
 
 			//將所有設定透過this.map.addLayer()導入map實例
 			this.map.addLayer({
-				id: map_config.layerId,
-				type: map_config.type,
-				paint: {
-					...maplayerCommonPaint[`${map_config.type}`],
-					...extra_paint_configs,
-					...map_config.paint,
+				id: map_config.layerId, //給予一個代表該Layer的ID
+				type: map_config.type,  //載入的Feature類型 (circle、fill、symbol、line.....)
+				paint: { //載入座標點的風格與規範設定
+					...maplayerCommonPaint[`${map_config.type}`], //載入通用設定
+					...extra_paint_configs, //載入上面特殊設定
+					...map_config.paint, //載入map_config內自己的自訂設定
 				},
 				layout: {
 					...maplayerCommonLayout[`${map_config.type}`],
@@ -337,6 +405,28 @@ export const useMapStore = defineStore("map", {
 				},
 				source: `${map_config.layerId}-source`, //指定的source要記得與addMapLayerSource()匯入的名稱一樣
 			});
+			/* 值得注意的是，如果有載入extra設定，很大概率會與 通用設定重複，此時會自動包留extra的設定 (後載入者)
+				EX: maplayerCommonPaint[`${map_config.type}`]:
+					"circle-radius": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						12.00,
+						2,
+						...
+					]
+				EX: extra_paint_configs:
+					"circle-radius": [
+						"interpolate",
+						["linear"],
+						["zoom"],
+						11.99,
+						3.5,
+						...
+					]
+				//只表留下面的
+			*/
+
 
 			//該加的加，該移除的移除
 			this.currentLayers.push(map_config.layerId);
