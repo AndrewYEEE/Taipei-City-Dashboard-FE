@@ -231,4 +231,11 @@ onMounted(() => {
 		transform: rotate(360deg);
 	}
 }
+
+
+.marker {
+	background-image: url('https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg');
+	background-size: cover;
+	cursor: pointer;
+}
 </style>

@@ -4344,6 +4344,161 @@
 			],
 			"tags": [],
 			"contributors": ["cht"]
+		},
+		"10000": {
+			"id": 10000,
+			"index": "job_example",
+			"map_config": [
+				{
+					"index": "accessibility_job_institution_geo",
+					"paint": {
+						"circle-color": [
+							"match",
+							["get", "business item"],
+							"職業重建服務",
+							"#F14500",
+							"職業輔導評量服務",
+							"#1F4500",
+							"立案之就業服務機構",
+							"#F33500",
+							"餐飲業",
+							"#F55500",
+							"食品製迼業",
+							"#113500",
+							"批發及零售業",
+							"#FF4500",
+							"零售業",
+							"#905EE6",
+							"食品製造業",
+							"#151EEC",
+							"清潔服務業",
+							"#475EEC",
+							"業務及辦公室支援服務業",
+							"#586EEC",
+							"加油站業",
+							"#235EEC",
+							"印刷品裝訂",
+							"#852EEC",
+							"圖書出版業",
+							"#425EEC",
+							"其他專門設計業",
+							"#EDAEEC",
+							"#9C2A4B"
+						]
+					},
+					"property": [
+						{
+							"key": "name",
+							"name": "機構名稱"
+						},
+						{
+							"key": "business item",
+							"name": "服務類型"
+						},
+						{
+							"key": "year",
+							"name": "年分"
+						},
+						{
+							"key": "town",
+							"name": "行政區"
+						},
+						{
+							"key": "address",
+							"name": "地址"
+						},
+						{
+							"key": "telephone",
+							"name": "電話"
+						}
+					],
+					"type": "circle",
+					"size": null,
+					"icon": null,
+					"title": "身障就業機構"
+				},{
+					"index": "district_border",
+					"paint": {
+						"line-color": "#B4654A",
+						"line-dasharray": [2, 2],
+						"line-opacity": 0.8
+					},
+					"property": [
+						{
+							"key": "town",
+							"name": "行政區"
+						}
+					],
+					"type": "line",
+					"size": null,
+					"icon": null,
+					"title": "行政區"
+				},{
+					"index": "district_institution_geo",
+					"paint": {
+						"circle-color": [
+							"case",
+							["<", ["get", "nums"], 2],
+							"#905EE6",
+							["all", [">=", ["get", "nums"], 2], ["<", ["get", "nums"], 6]],
+							"#EDAEEC",
+							["all", [">=", ["get", "nums"], 6], ["<", ["get", "nums"], 12]],
+							"#FF4500",
+							[">=", ["get", "nums"], 12],
+							"#E4523C",
+							"#9C2A4B"
+						]
+					},
+					"property": [
+						{ "key": "nums", "name": "機構數量" },
+						{
+							"key": "town",
+							"name": "行政區"
+						}
+					],
+					"type": "circle",
+					"size": null,
+					"icon": null,
+					"title": "身障就業機構數量"
+				}
+			],
+			"chart_config": {
+				"color": ["#FFF552"],
+				"types": ["DistrictChart", "ColumnChart"],
+				"unit": "間",
+				"map_filter": [
+					"town",
+					[
+						"北投區",
+						"士林區",
+						"內湖區",
+						"南港區",
+						"松山區",
+						"信義區",
+						"中山區",
+						"大同區",
+						"中正區",
+						"萬華區",
+						"大安區",
+						"文山區"
+					]
+				]
+			},
+			"history_data": false,
+			"source": "臺北市資料平台",
+			"time_from": "2022-08-15T00:00:00Z",
+			"time_to": null,
+			"update_freq": null,
+			"update_freq_unit": null,
+			"name": "實作 - 身障就業機構數量",
+			"short_desc": "身障就業資源地圖 - 顯示身障就業資源位置數量",
+			"long_desc": "身障就業資源地圖 - 顯示身障就業資源位置數量。",
+			"use_case": "將身障就業資源地圖合併成一個資料集，並產生適合的空間資訊。",
+			"links": [
+				"https://data.taipei/"
+			],
+			"tags": [],
+			"contributors": ["cht"]
 		}
 	}
 }

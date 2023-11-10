@@ -62,6 +62,9 @@ export const useMapStore = defineStore("map", {
 		// 原本邏輯是要儲存還在載入的layersID
 		// 然而，我覺得這個功能沒用，因為mapStore中，this.loadingLayers.push()推入的都不是LayerID而是"rending"字串!!!!
 		loadingLayers: [],
+
+		//我自己加的，用於儲存Maker
+		markerList: [],
 	}),
 	getters: {},
 	actions: {
@@ -324,8 +327,58 @@ export const useMapStore = defineStore("map", {
 				this.AddArcMapLayer(map_config, data);
 			} else {
 				this.addMapLayer(map_config);
+
+				const ID = `${map_config.layerId}-source`
+				if (ID === "district_institution_geo-circle-source") {
+					
+					this.addMarker(map_config,data);
+					
+				}
 			}
 		},
+
+		addMarker(map_config, data){
+			console.log(`${map_config.layerId}-source`)
+			console.log(data)
+			//我自己加的
+			const ID = `${map_config.layerId}-source`
+			if (ID === "district_institution_geo-circle-source") {
+				data.features.forEach(marker => {
+					console.log(marker)
+					// Create a DOM element for each marker.
+					const el = document.createElement('div');
+					// el.src = require("https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg")
+					el.className = 'marker';
+					const size = marker.properties.nums * 10;
+					el.style.backgroundImage = "url('https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg')";
+					el.style.backgroundSize = "cover";
+					 
+					el.style.width = `${size}px`;
+					el.style.height = `${size}px`;
+					 
+					// Add a popup displayed on click for each marker
+					const popup = new mapboxGl.Popup({ offset: 25 });
+					popup.setHTML(
+						`<h2>${marker.properties.town}</h2>${marker.properties.nums}數<br/>`
+					);
+					 
+					// Add markers to the map.
+					let mk = new mapboxGl.Marker({
+						element: el,
+						// Point markers toward the nearest horizon
+						rotationAlignment: 'horizon',
+						offset: [0, -size / 2]
+					})
+					.setLngLat(marker.geometry.coordinates)
+					.setPopup(popup)
+					.addTo(this.map);
+					
+					this.markerList.push(mk)
+				});
+				
+			}
+		},
+
 
 		// 4-1. Using the mapbox source and map config, create a new layer
 		// The styles and configs can be edited in /assets/configs/mapbox/mapConfig.js
@@ -650,6 +703,14 @@ export const useMapStore = defineStore("map", {
 		// Remove the current popup 
 		// (移除彈出視窗)，由turnOffMapLayerVisibility()呼叫
 		removePopup() {
+			//我自己加的，清除Maker
+			if (this.markerList) {
+				while (this.markerList > 0) {
+					this.markerList.pop();
+				}
+				this.markerList = []//清空
+			}
+
 			//如果有儲存東西，清除
 			if (this.popup) {
 				this.popup.remove(); //先清除裡面內容後在設為null
