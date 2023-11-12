@@ -239,6 +239,30 @@ export const useMapStore = defineStore("map", {
 					if ( !this.currentVisibleLayers.find( (element) => element === mapLayerId )) {
 						this.currentVisibleLayers.push(mapLayerId);
 					}
+
+					//我自己加的，加入Marker效果
+					const ID = `${mapLayerId}-source`
+					if (ID === "district_institution_geo-circle-source") {
+						this.addMarker(element,ID);
+					}else if (ID === "district_institution_geo-fill-extrusion-source") {
+						//map畫面變動動畫，移去最大數量的那個點
+						this.map.flyTo({
+							// center: max_cor,
+							bearing: 56.50, //目標方位角
+							zoom: 11,
+							pitch: 50,
+							speed: 0.9, // speed of flying
+						})
+					}else if (ID === "business_count_by_town_geo-circle-source") {
+						//map畫面變動動畫，移去最大數量的那個點
+						this.map.flyTo({
+							// center: max_cor,
+							bearing: 56.50, //目標方位角
+							zoom: 11,
+							pitch: 50,
+							speed: 0.9, // speed of flying
+						})
+					}
 					return;
 				}
 
@@ -294,7 +318,43 @@ export const useMapStore = defineStore("map", {
 				//將mapLayerId加入this.loadingLayers[]
 				this.loadingLayers.push(appendLayerId.layerId);
 				//呼叫fetchLocalGeoJson()將element丟進去
-				this.fetchLocalGeoJson(appendLayerId);
+				// this.fetchLocalGeoJson(appendLayerId);
+
+				//我自己加的，加入Marker效果
+				const ID = `${mapLayerId}-source`
+				if (ID === "business_count_by_town_geo-circle-source") {
+					console.log("CLUSTER",ID)
+					this.fetchLocalGeoJsonByClusters(appendLayerId);
+				}else{
+					console.log("ORG",ID)
+					this.fetchLocalGeoJson(appendLayerId);
+				}
+					
+				
+				if (ID === "district_institution_geo-circle-source") {
+					this.addMarker(element,ID);
+				}else if (ID === "district_institution_geo-fill-extrusion-source") {
+					//map畫面變動動畫，移去最大數量的那個點
+					this.map.flyTo({
+						// center: max_cor,
+						bearing: 56.50, //目標方位角
+						zoom: 11,
+						pitch: 50,
+						speed: 0.9, // speed of flying
+					})
+				}else if (ID === "business_count_by_town_geo-circle-source") {
+
+
+					//map畫面變動動畫，移去最大數量的那個點
+					this.map.flyTo({
+						// center: max_cor,
+						bearing: 56.50, //目標方位角
+						zoom: 11,
+						pitch: 50,
+						speed: 0.9, // speed of flying
+					})
+				}
+
 			});
 		},
 
@@ -327,56 +387,207 @@ export const useMapStore = defineStore("map", {
 				this.AddArcMapLayer(map_config, data);
 			} else {
 				this.addMapLayer(map_config);
-
-				const ID = `${map_config.layerId}-source`
-				if (ID === "district_institution_geo-circle-source") {
-					
-					this.addMarker(map_config,data);
-					
-				}
 			}
 		},
 
-		addMarker(map_config, data){
-			console.log(`${map_config.layerId}-source`)
-			console.log(data)
-			//我自己加的
-			const ID = `${map_config.layerId}-source`
-			if (ID === "district_institution_geo-circle-source") {
-				data.features.forEach(marker => {
-					console.log(marker)
-					// Create a DOM element for each marker.
-					const el = document.createElement('div');
-					// el.src = require("https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg")
-					el.className = 'marker';
-					const size = marker.properties.nums * 10;
-					el.style.backgroundImage = "url('https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg')";
-					el.style.backgroundSize = "cover";
-					 
-					el.style.width = `${size}px`;
-					el.style.height = `${size}px`;
-					 
-					// Add a popup displayed on click for each marker
-					const popup = new mapboxGl.Popup({ offset: 25 });
-					popup.setHTML(
-						`<h2>${marker.properties.town}</h2>${marker.properties.nums}數<br/>`
-					);
-					 
-					// Add markers to the map.
-					let mk = new mapboxGl.Marker({
-						element: el,
-						// Point markers toward the nearest horizon
-						rotationAlignment: 'horizon',
-						offset: [0, -size / 2]
-					})
-					.setLngLat(marker.geometry.coordinates)
-					.setPopup(popup)
-					.addTo(this.map);
-					
-					this.markerList.push(mk)
+		//我自己加的
+		fetchLocalGeoJsonByClusters(map_config){
+			//EX: /mapData/patrol_rain_sewer.geojson
+			console.log(map_config.index)
+			axios
+				.get(`${BASE_URL}/mapData/${map_config.index}.geojson`)
+				.then((rs) => {
+					this.addMapLayerSourceByClusters(map_config, rs.data);
+				})
+				.catch((e) => console.error(e));
+		},
+
+		//我自己加的
+		addMapLayerSourceByClusters(map_config,data){
+			// 匯入layer到map
+			// 這裡 "patrol_rain_sewer-circle-source" 只是個名稱
+			this.map.addSource(`${map_config.layerId}-source`, {
+				type: "geojson",
+				data: { ...data },
+				cluster: true,
+				clusterMaxZoom: 12, // Max zoom to cluster points on
+				clusterRadius: 50, // Radius of each cluster when clustering points (defaults to 50)
+				clusterMinPoints: 4
+			});
+
+			
+			this.addMapLayerByCluster(map_config);
+			
+		},
+
+		//我自己加的
+		addMapLayerByCluster(map_config){
+			let extra_paint_configs = {};
+			let extra_layout_configs = {};
+
+			//將所有設定透過this.map.addLayer()導入map實例
+			console.log(map_config.layerId)
+			this.map.addLayer({
+				id: map_config.layerId, //給予一個代表該Layer的ID
+				type: map_config.type,  //載入的Feature類型 (circle、fill、symbol、line.....)
+				filter: ['has', 'point_count'],
+				paint: { //載入座標點的風格與規範設定
+					// ...maplayerCommonPaint[`${map_config.type}`], //載入通用設定
+					// ...extra_paint_configs, //載入上面特殊設定
+					...map_config.paint, //載入map_config內自己的自訂設定
+				},
+				// layout: {
+				// 	...maplayerCommonLayout[`${map_config.type}`],
+				// 	...extra_layout_configs,
+				// },
+				source: `${map_config.layerId}-source`, //指定的source要記得與addMapLayerSource()匯入的名稱一樣
+			});
+			this.map.addLayer({
+				id: 'cluster-count',
+				type: 'symbol',
+				source: `${map_config.layerId}-source`,
+				filter: ['has', 'point_count'],
+				layout: {
+					'text-field': ['get', 'point_count_abbreviated'],
+					'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+					'text-size': 12,
+					"text-allow-overlap" : true
+				}
+			});
+				 
+			this.map.addLayer({
+				id: 'unclustered-point',
+				type: 'circle',
+				source: `${map_config.layerId}-source`,
+				filter: ['!', ['has', 'point_count']],
+				paint: {
+					'circle-color': '#11b4da',
+					'circle-radius': 4,
+					'circle-stroke-width': 1,
+					'circle-stroke-color': '#fff',
+				}
+			});
+
+			// inspect a cluster on click
+			this.map.on('click', map_config.layerId, (e) => {
+				const features = this.map.queryRenderedFeatures(e.point, {
+					layers: [map_config.layerId]
 				});
+				const clusterId = features[0].properties.cluster_id;
+				console.log(features)
+				this.map.getSource(`${map_config.layerId}-source`).getClusterExpansionZoom(
+					clusterId,
+					(err, zoom) => {
+						if (err) return;
+						
+						this.map.easeTo({
+							center: features[0].geometry.coordinates,
+							zoom: zoom
+						});
+					}
+				);
+			});
 				
-			}
+			// When a click event occurs on a feature in
+			// the unclustered-point layer, open a popup at
+			// the location of the feature, with
+			// description HTML from its properties.
+			this.map.on('click', 'unclustered-point', (e) => {
+				//do nothing....
+				const coordinates = e.features[0].geometry.coordinates.slice();
+				const properties = e.features[0].properties;
+				console.log(coordinates)
+				console.log(properties)
+			});
+			
+			this.map.on('mouseenter', map_config.layerId, () => {
+				this.map.getCanvas().style.cursor = 'pointer';
+			});
+			this.map.on('mouseleave', map_config.layerId, () => {
+				this.map.getCanvas().style.cursor = '';
+			});
+
+			//該加的加，該移除的移除
+			this.currentLayers.push(map_config.layerId);
+			this.mapConfigs[map_config.layerId] = map_config;
+			this.currentVisibleLayers.push(map_config.layerId);
+			this.loadingLayers = this.loadingLayers.filter(
+				(el) => el !== map_config.layerId
+			);
+		},
+
+		//我自己加的
+		addMarker(map_config,myID){
+			console.log(`${myID}-source`)
+			
+			//EX: /mapData/patrol_rain_sewer.geojson
+			axios
+				.get(`${BASE_URL}/mapData/${map_config.index}.geojson`)
+				.then((rs) => {
+					console.log(rs.data)
+					//我自己加的
+					if (myID === "district_institution_geo-circle-source") {
+						let num = 0;
+						let max = 0;
+						let max_cor = null ;
+						rs.data.features.forEach(marker => {
+							console.log(marker)
+							// Create a DOM element for each marker.
+							const el = document.createElement('div');
+							// el.src = require("https://docs.mapbox.com/mapbox-gl-js/assets/pin.svg")
+							el.className = 'marker';
+							const size = marker.properties.nums;
+							if (size>10) {
+								el.style.backgroundImage = `url('${BASE_URL}/images/map/red_bar.svg')`;
+							}else if (size >6) {
+								el.style.backgroundImage = `url('${BASE_URL}/images/map/yellow_bar.svg')`;
+							}else if (size >3) {
+								el.style.backgroundImage = `url('${BASE_URL}/images/map/green.svg')`;
+							}else{
+								el.style.backgroundImage = `url('${BASE_URL}/images/map/green_block.svg')`;
+							}
+							// el.style.backgroundImage = `url('${BASE_URL}/images/map/red_bar.svg')`;
+							el.style.backgroundSize = "cover";
+							
+							el.style.width = `10px`;
+							el.style.height = `${size*5}px`;
+							
+							// Add a popup displayed on click for each marker
+							const popup = new mapboxGl.Popup({ offset: 25 });
+							popup.setHTML(
+								`<h2>行政區: ${marker.properties.town}</h2>機構數量: ${marker.properties.nums}<br/>`
+							);
+							
+							// Add markers to the map.
+							let mk = new mapboxGl.Marker({
+								element: el,
+								// Point markers toward the nearest horizon
+								rotationAlignment: 'horizon',
+								offset: [0, -size / 2]
+							})
+							.setLngLat(marker.geometry.coordinates)
+							.setPopup(popup)
+							.addTo(this.map);
+							
+							this.markerList.push(mk)
+
+
+							num = num + 1;
+							if (marker.properties.nums > max) {
+								max = marker.properties.nums;
+								max_cor = marker.geometry.coordinates;
+							}
+						});
+						
+						//map畫面變動動畫，移去最大數量的那個點
+						this.map.flyTo({
+							// center: max_cor,
+							pitch: 50,
+							speed: 0.9, // speed of flying
+						})
+					}
+				})
+				.catch((e) => console.error(e));
 		},
 
 
@@ -586,8 +797,16 @@ export const useMapStore = defineStore("map", {
 		// 由addToMapLayerList()在this.currentLayers[]內有mapLayerId時呼叫
 		// 這裡是將指定LayerID顯示
 		turnOnMapLayerVisibility(mapLayerId) {
+			//我自己加的
+			if (mapLayerId === "business_count_by_town_geo-circle") {
+				this.map.setLayoutProperty('cluster-count', "visibility", "visible");
+				this.map.setLayoutProperty('unclustered-point', "visibility", "visible");
+			}
+			
 			//setLayoutProperty用於針對特定layer做風格(Style)設定，這裡是將指定LayerID顯示
 			this.map.setLayoutProperty(mapLayerId, "visibility", "visible");
+
+			
 		},
 		
 		// 6. Turn off the visibility of an exisiting map layer but don't remove it completely
@@ -605,14 +824,48 @@ export const useMapStore = defineStore("map", {
 
 				// 如果能從Map實例獲取指定Layer，則清除Layer的Filter並影藏該層
 				if (this.map.getLayer(mapLayerId)) {
-					//setFilter用於針對Layer中的Feature特別做過濾規則，設為null則是清除規則
-					this.map.setFilter(mapLayerId, null);
-					//setLayoutProperty用於針對特定layer做風格(Style)設定，這裡是將指定LayerID隱藏
-					this.map.setLayoutProperty(
-						mapLayerId,
-						"visibility",
-						"none"
-					);
+					// //setFilter用於針對Layer中的Feature特別做過濾規則，設為null則是清除規則
+					// this.map.setFilter(mapLayerId, null);
+					// //setLayoutProperty用於針對特定layer做風格(Style)設定，這裡是將指定LayerID隱藏
+					// this.map.setLayoutProperty(
+					// 	mapLayerId,
+					// 	"visibility",
+					// 	"none"
+					// );
+					
+					//我自己加的
+					if (mapLayerId === "business_count_by_town_geo-circle") {
+						//setLayoutProperty用於針對特定layer做風格(Style)設定，這裡是將指定LayerID隱藏
+						this.map.setLayoutProperty(
+							mapLayerId,
+							"visibility",
+							"none"
+						);
+						// this.map.setFilter('cluster-count', null);
+						this.map.setLayoutProperty(
+							'cluster-count',
+							"visibility",
+							"none"
+						);
+
+						// this.map.setFilter('unclustered-point', null);
+						this.map.setLayoutProperty(
+							'unclustered-point',
+							"visibility",
+							"none"
+						);
+
+					}else{
+						//setFilter用於針對Layer中的Feature特別做過濾規則，設為null則是清除規則
+						this.map.setFilter(mapLayerId, null);
+						//setLayoutProperty用於針對特定layer做風格(Style)設定，這裡是將指定LayerID隱藏
+						this.map.setLayoutProperty(
+							mapLayerId,
+							"visibility",
+							"none"
+						);
+					}
+				
 				}
 
 				// 從this.currentVisibleLayers[]移除mapLayerId
@@ -705,9 +958,11 @@ export const useMapStore = defineStore("map", {
 		removePopup() {
 			//我自己加的，清除Maker
 			if (this.markerList) {
-				while (this.markerList > 0) {
-					this.markerList.pop();
-				}
+				console.log(this.markerList)
+				this.markerList.forEach((element) => {
+					element.remove(); //移除Mark
+					console.log(this.markerList)
+				});
 				this.markerList = []//清空
 			}
 
@@ -813,6 +1068,32 @@ export const useMapStore = defineStore("map", {
 		// Called when the user is switching between maps (與下面clearEntireMap()差異在沒有清除this.map)
 		clearOnlyLayers() {
 			this.currentLayers.forEach((element) => {
+				//我自己加的
+				if (element === "business_count_by_town_geo-circle") {
+					this.map.setFilter('cluster-count', null);
+					this.map.setLayoutProperty(
+						'cluster-count',
+						"visibility",
+						"none"
+					);
+
+					this.map.setFilter('unclustered-point', null);
+					this.map.setLayoutProperty(
+						'unclustered-point',
+						"visibility",
+						"none"
+					);
+
+					this.map.off('click', element);
+					this.map.off('click', 'unclustered-point');
+					
+					this.map.off('mouseenter', element);
+					this.map.off('mouseleave',element);
+					this.map.removeLayer('cluster-count');
+					this.map.removeLayer('unclustered-point');
+				}
+
+
 				this.map.removeLayer(element);
 				this.map.removeSource(`${element}-source`);
 			});

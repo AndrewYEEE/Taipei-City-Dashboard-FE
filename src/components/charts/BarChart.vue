@@ -82,6 +82,7 @@ function handleDataSelection(e, chartContext, config) {
 		return;
 	}
 	if (config.dataPointIndex !== selectedIndex.value) {
+		console.log(props.chart_config.map_filter[1][config.dataPointIndex])
 		mapStore.addLayerFilter(`${props.map_config[0].index}-${props.map_config[0].type}`, props.chart_config.map_filter[0], props.chart_config.map_filter[1][config.dataPointIndex]);
 		selectedIndex.value = config.dataPointIndex;
 	} else {

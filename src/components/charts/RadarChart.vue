@@ -76,6 +76,13 @@ const chartOptions = ref({
 			});
 			return adjustedMax * 1.1;
 		},
+	},
+	dataLabels: { //我自己加的
+		enabled: true,
+		background: {
+			enabled: true,
+			borderRadius:2,
+		}
 	}
 });
 </script>

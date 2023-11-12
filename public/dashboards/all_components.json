@@ -4384,7 +4384,9 @@
 							"其他專門設計業",
 							"#EDAEEC",
 							"#9C2A4B"
-						]
+						],
+						"circle-radius": 3,
+						"circle-opacity": 0.6
 					},
 					"property": [
 						{
@@ -4419,9 +4421,10 @@
 				},{
 					"index": "district_border",
 					"paint": {
-						"line-color": "#B4654A",
+						"line-width": 4,
+						"line-color": "#ff99ff",
 						"line-dasharray": [2, 2],
-						"line-opacity": 0.8
+						"line-opacity": 0.5
 					},
 					"property": [
 						{
@@ -4436,18 +4439,23 @@
 				},{
 					"index": "district_institution_geo",
 					"paint": {
-						"circle-color": [
+						"fill-extrusion-color": [  
 							"case",
-							["<", ["get", "nums"], 2],
-							"#905EE6",
-							["all", [">=", ["get", "nums"], 2], ["<", ["get", "nums"], 6]],
-							"#EDAEEC",
-							["all", [">=", ["get", "nums"], 6], ["<", ["get", "nums"], 12]],
-							"#FF4500",
-							[">=", ["get", "nums"], 12],
-							"#E4523C",
-							"#9C2A4B"
-						]
+							["<", ["get", "nums"], 3],
+							"#33cc33",
+							["all", [">=", ["get", "nums"], 3], ["<", ["get", "nums"], 7]],
+							"#ffff00",
+							["all", [">=", ["get", "nums"], 7], ["<", ["get", "nums"], 10]],
+							"#ff9933",
+							[">=", ["get", "nums"], 10],
+							"#ff0000",
+							"#666699"
+						],
+						"fill-extrusion-opacity": 0.8,
+						"fill-extrusion-base": 0,
+						"fill-extrusion-height": 
+							["*", ["to-number", ["get", "nums"]], 200]
+						
 					},
 					"property": [
 						{ "key": "nums", "name": "機構數量" },
@@ -4456,15 +4464,15 @@
 							"name": "行政區"
 						}
 					],
-					"type": "circle",
+					"type": "fill-extrusion",
 					"size": null,
 					"icon": null,
 					"title": "身障就業機構數量"
 				}
 			],
 			"chart_config": {
-				"color": ["#FFF552"],
-				"types": ["DistrictChart", "ColumnChart"],
+				"color": ["#3399ff"],
+				"types": ["DistrictChart","RadarChart", "ColumnChart"],
 				"unit": "間",
 				"map_filter": [
 					"town",
@@ -4494,6 +4502,161 @@
 			"short_desc": "身障就業資源地圖 - 顯示身障就業資源位置數量",
 			"long_desc": "身障就業資源地圖 - 顯示身障就業資源位置數量。",
 			"use_case": "將身障就業資源地圖合併成一個資料集，並產生適合的空間資訊。",
+			"links": [
+				"https://data.taipei/"
+			],
+			"tags": [],
+			"contributors": ["cht"]
+		},
+		"10001":{
+			"id": 10001,
+			"index": "service_example",
+			"map_config": [
+				{
+					"index": "business_count_by_town_geo",
+					"paint": {
+						"circle-color": [
+							"step",
+							["get", "point_count"],
+							"#51bbd6",
+							5,
+							"#f1f075",
+							20,
+							"#f28cb1"
+						],
+						"circle-radius": [
+							"step",
+							["get", "point_count"],
+							20,
+							5,
+							30,
+							20,
+							40
+						]
+					},
+					"property": [
+						{
+							"key": "town",
+							"name": "行政區"
+						},
+						{
+							"key": "address",
+							"name": "地址"
+						},
+						{
+							"key": "business",
+							"name": "服務類型"
+						},
+						{
+							"key": "telephone",
+							"name": "電話"
+						}
+					],
+					"type": "circle",
+					"title": "身障就業機構服務種類分布"
+				},{
+					"index": "district_border",
+					"paint": {
+						"line-width": 4,
+						"line-color": "#f090ff",
+						"line-dasharray": [2, 2],
+						"line-opacity": 0.5
+					},
+					"property": [
+						{
+							"key": "town",
+							"name": "行政區"
+						}
+					],
+					"type": "line",
+					"size": null,
+					"icon": null,
+					"title": "行政區"
+				}
+			],
+			"chart_config": {
+				"color": ["#9c7a3e", "#b7e28e", "#7febd0", "#8ce8ff"],
+				"types": ["BarChart", "DonutChart"],
+				"unit": "間",
+				"categories": [
+					"職業重建服務",
+					"職業輔導評量服務",
+					"立案之就業服務機構",
+					"餐飲業",
+					"食品製迼業",
+					"批發及零售業",
+					"零售業",
+					"食品製造業",
+					"清潔服務業",
+					"業務及辦公室支援服務業",
+					"加油站業",
+					"印刷品裝訂",
+					"圖書出版業",
+					"其他專門設計業"
+				],
+				"map_filter": [
+					"business",
+					[
+						"零售業",
+						"立案之就業服務機構",
+						"餐飲業",
+						"職業重建服務",
+						"食品製造業",
+						"清潔服務業",
+						"加油站業",
+						"批發及零售業",
+						"業務及辦公室支援服務業",
+						"文具批發業",
+						"飲料及箊草製品零售",
+						"清潔用品零售業",
+						"未分類其他食品",
+						"清潔服務",
+						"其他專門設計業",
+						"印刷及其輔助業",
+						"文具製造業",
+						"輔具清潔",
+						"藝文服務",
+						"複合支援服務業",
+						"西點麵包零售",
+						"販售",
+						"資料處理服務業",
+						"運動",
+						"輕食飲料",
+						"文具零售業",
+						"運動相關百貨零售",
+						"食品製迼業",
+						"其他餐飲業",
+						"飲食成品",
+						"印刷品裝訂",
+						"職業輔導評量服務",
+						"圖書出版業",
+						"空間場地出借",
+						"產品設計業",
+						"理貨包裝業",
+						"多功能會議廳",
+						"影印業",
+						"其他全新商品零售業",
+						"洗衣業",
+						"汽車美容業",
+						"汽車美容",
+						"樂器/育樂用品出租銷售",
+						"排版業",
+						"教育課程",
+						"日常用品零售業",
+						"文教服務",
+						"個人及家庭用品維修業"
+					]
+				]
+			},
+			"name": "實作 - 身障就業機構服務種類分布",
+			"source": "臺北市資料平台",
+			"time_from": "2023-06-02T00:00:00+08:00",
+			"time_to": null,
+			"update_freq": null,
+			"update_freq_unit": null,
+			"short_desc": "顯示身障就業機構服務種類分布",
+			"long_desc": "顯示身障就業機構服務種類分布情況，不定期更新。",
+			"use_case": "身障就業機構服務種類分布。",
 			"links": [
 				"https://data.taipei/"
 			],
