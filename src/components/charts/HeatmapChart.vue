@@ -151,10 +151,13 @@ function handleDataSelection(e, chartContext, config) {
 
 <template>
 	<div v-if="activeChart === 'HeatmapChart'" class="heatmapchart">
+		<!--上方標題-->
 		<div class="heatmapchart-title">
 			<h5>總合</h5>
 			<h6>{{ heatmapData.sum }} {{ chart_config.unit }}</h6>
 		</div>
+
+		<!--使用ApexChart heatmap繪製-->
 		<apexchart width="100%" height="360px" type="heatmap" :options="chartOptions" :series="series"
 			@dataPointSelection="handleDataSelection"></apexchart>
 	</div>

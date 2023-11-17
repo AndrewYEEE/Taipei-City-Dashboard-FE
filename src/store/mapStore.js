@@ -448,7 +448,7 @@ export const useMapStore = defineStore("map", {
 				source: `${map_config.layerId}-source`,
 				filter: ['has', 'point_count'],
 				layout: {
-					'text-field': ['get', 'point_count_abbreviated'],
+					'text-field': ["to-string",['-',['get', 'point_count_abbreviated'],1]], //嘗試解決cluster算錯的問題
 					'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
 					'text-size': 12,
 					"text-allow-overlap" : true
@@ -470,6 +470,7 @@ export const useMapStore = defineStore("map", {
 
 			// inspect a cluster on click
 			this.map.on('click', map_config.layerId, (e) => {
+				e.preventDefault();
 				const features = this.map.queryRenderedFeatures(e.point, {
 					layers: [map_config.layerId]
 				});
@@ -493,11 +494,28 @@ export const useMapStore = defineStore("map", {
 			// the location of the feature, with
 			// description HTML from its properties.
 			this.map.on('click', 'unclustered-point', (e) => {
+				e.preventDefault();
 				//do nothing....
 				const coordinates = e.features[0].geometry.coordinates.slice();
 				const properties = e.features[0].properties;
 				console.log(coordinates)
 				console.log(properties)
+				while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+					coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+				}
+					
+				new mapboxGl.Popup()
+					.setLngLat(coordinates)
+					.setHTML(
+						`<div>
+							address: ${properties.address}<br>
+							business: ${properties.business}<br>
+							name: ${properties.name}<br>
+							telephone: ${properties.telephone}<br>
+							town: ${properties.town}<br> 
+						</div>`
+					)
+					.addTo(this.map);
 			});
 			
 			this.map.on('mouseenter', map_config.layerId, () => {
@@ -734,6 +752,7 @@ export const useMapStore = defineStore("map", {
 
 				lines[i].geometry.coordinates = [...line];
 			}
+			console.log(lines)
 
 			const tb = (window.tb = new Threebox(
 				this.map,
@@ -898,7 +917,31 @@ export const useMapStore = defineStore("map", {
 				return;
 			}
 
-			// console.log(clickFeatureDatas)
+			//我自己加的
+			console.log(event)
+			console.log(clickFeatureDatas)
+			const clusterId = clickFeatureDatas[0].layer.id;
+			if (clusterId === "business_count_by_town_geo-circle") {
+				const coordinates = event.lngLat;
+				const point_count = clickFeatureDatas[0].properties.point_count;
+				while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
+					coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
+				}
+					
+				new mapboxGl.Popup()
+					.setLngLat(coordinates)
+					.setHTML(
+						`<div>
+							當前位置<br>
+							鄰近的節點數量: ${point_count-1>0?point_count-1:1}
+							<br>
+						</div>`
+					)
+					.addTo(this.map);
+					return ;
+			}
+
+
 			// Parse clickFeatureDatas to get the first 3 unique layer datas, skip over already included layers
 			// 由於Map上面有數個layers，使用者點擊的位置可能會同時包含不同Layer的資料(MapBox專有名詞叫"Feature")，因此這邊設計是至多擷取三個Layer的
 			// 每一層Layer資料不重複擷取，例如如果獲取的資料順序是 [A1,A2,B1,C1,D1]，則只會擷取[A1,B1,C1]
@@ -1043,7 +1086,17 @@ export const useMapStore = defineStore("map", {
 				this.AddArcMapLayer(map_config, toBeFiltered);
 				return;
 			}
-			this.map.setFilter(layer_id, ["==", ["get", property], key]);
+			// this.map.setFilter(layer_id, ["==", ["get", property], key]);
+
+			//我自己加的
+			console.log(layer_id,"== get",property,key)
+			if (layer_id === "business_count_by_town_geo-circle") {
+				this.map.setFilter(layer_id, ["all", ["has","point_count"], ["==", ["get", property], key]]);
+			}else{
+				this.map.setFilter(layer_id, ["==", ["get", property], key]);
+			}
+			
+			
 		},
 		// Remove any filters on a map layer
 		// 移除切換圖層的規則 (簡單來說就是this.map.setFilter(layer_id, null))
@@ -1060,7 +1113,15 @@ export const useMapStore = defineStore("map", {
 				this.AddArcMapLayer(map_config, toRestore);
 				return;
 			}
-			this.map.setFilter(layer_id, null);
+			// this.map.setFilter(layer_id, null);
+			//我自己加的
+			console.log(layer_id," set null")
+			if (layer_id === "business_count_by_town_geo-circle") {
+				this.map.setFilter(layer_id, null);
+				this.map.setFilter(layer_id, ["has","point_count"]);
+			}else{
+				this.map.setFilter(layer_id, null);
+			}
 		},
 
 
@@ -1086,6 +1147,7 @@ export const useMapStore = defineStore("map", {
 
 					this.map.off('click', element);
 					this.map.off('click', 'unclustered-point');
+					
 					
 					this.map.off('mouseenter', element);
 					this.map.off('mouseleave',element);
