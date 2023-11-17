@@ -4202,8 +4202,7 @@
 			"source": "交通局",
 			"time_from": "2023-06-02T00:00:00+08:00",
 			"time_to": null,
-			"update_freq": 10,
-			"update_freq_unit": "minute",
+
 			"short_desc": "顯示文字雲",
 			"long_desc": "顯示文字雲。",
 			"use_case": "文字雲。",
